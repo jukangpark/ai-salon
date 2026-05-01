@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Marquee from "react-fast-marquee";
 import {
   Brain,
   Coffee,
@@ -26,6 +27,25 @@ const fadeUp = {
 const stagger = {
   visible: { transition: { staggerChildren: 0.1 } },
 };
+
+const aiTools = [
+  { name: "ChatGPT", emoji: "💬", color: "#10A37F" },
+  { name: "Claude", emoji: "🧠", color: "#D97706" },
+  { name: "Midjourney", emoji: "🎨", color: "#ffffff" },
+  { name: "Perplexity", emoji: "🔍", color: "#20B2AA" },
+  { name: "Gemini", emoji: "✨", color: "#4285F4" },
+  { name: "Grok", emoji: "🤖", color: "#1D9BF0" },
+  { name: "ElevenLabs", emoji: "🎙️", color: "#FDB833" },
+  { name: "Runway", emoji: "🎬", color: "#FF4D4D" },
+  { name: "Ideogram", emoji: "🖼️", color: "#7C3AED" },
+  { name: "Canva AI", emoji: "🎨", color: "#00C4CC" },
+  { name: "NotebookLM", emoji: "📓", color: "#4285F4" },
+  { name: "Suno", emoji: "🎵", color: "#8B5CF6" },
+  { name: "Kling", emoji: "🎞️", color: "#FF6B6B" },
+  { name: "Cursor", emoji: "💻", color: "#a78bfa" },
+  { name: "Lovable", emoji: "🪄", color: "#f472b6" },
+  { name: "v0", emoji: "⚡", color: "#ffffff" },
+];
 
 const targetAudience = [
   { icon: "🤔", text: "AI 툴을 쓰는데 제대로 쓰는 건지 모르겠는 분" },
@@ -107,7 +127,7 @@ export default function Home() {
             variants={fadeUp}
             className="text-base text-slate-500 max-w-xl mx-auto mb-12"
           >
-            광주에서 AI 활용법을 함께 나누는 소셜 모임
+            AI 활용법을 함께 나누는 소셜 네트워크
           </motion.p>
 
           {/* CTA buttons */}
@@ -154,6 +174,53 @@ export default function Home() {
             />
           </div>
         </motion.div>
+      </section>
+
+      {/* ─── AI Tools Marquee ─── */}
+      <section className="relative py-12 overflow-hidden">
+        <p className="text-center text-slate-600 text-xs uppercase tracking-widest mb-6">
+          우리가 다루는 AI 툴들
+        </p>
+        <div className="relative">
+          <div className="absolute left-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-r from-[#030712] to-transparent pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-l from-[#030712] to-transparent pointer-events-none" />
+          <Marquee speed={40} pauseOnHover gradient={false}>
+            {aiTools.map((tool) => (
+              <div
+                key={tool.name}
+                className="mx-3 flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card hover:scale-105 transition-transform duration-200 cursor-default select-none"
+                style={{ borderColor: `${tool.color}22` }}
+              >
+                <span className="text-lg">{tool.emoji}</span>
+                <span
+                  className="text-sm font-semibold whitespace-nowrap"
+                  style={{ color: tool.color }}
+                >
+                  {tool.name}
+                </span>
+              </div>
+            ))}
+          </Marquee>
+          <div className="mt-3">
+            <Marquee speed={30} pauseOnHover gradient={false} direction="right">
+              {[...aiTools].reverse().map((tool) => (
+                <div
+                  key={tool.name}
+                  className="mx-3 flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card hover:scale-105 transition-transform duration-200 cursor-default select-none"
+                  style={{ borderColor: `${tool.color}22` }}
+                >
+                  <span className="text-lg">{tool.emoji}</span>
+                  <span
+                    className="text-sm font-semibold whitespace-nowrap"
+                    style={{ color: tool.color }}
+                  >
+                    {tool.name}
+                  </span>
+                </div>
+              ))}
+            </Marquee>
+          </div>
+        </div>
       </section>
 
       {/* ─── About ─── */}
