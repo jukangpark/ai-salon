@@ -21,6 +21,7 @@ import OpenAI from "@lobehub/icons/es/OpenAI";
 import DeepSeek from "@lobehub/icons/es/DeepSeek";
 import Ollama from "@lobehub/icons/es/Ollama";
 import Anthropic from "@lobehub/icons/es/Anthropic";
+import Manus from "@lobehub/icons/es/Manus";
 import {
   Brain,
   Coffee,
@@ -66,6 +67,7 @@ const aiTools: { name: string; Icon: React.ComponentType<{ size?: number; color?
   { name: "v0", Icon: (p) => <V0 {...p} color="white" /> },
   { name: "Ollama", Icon: (p) => <Ollama {...p} color="white" /> },
   { name: "Anthropic", Icon: (p) => <Anthropic {...p} color="white" /> },
+  { name: "Manus", Icon: (p) => <Manus {...p} color="white" /> },
 ];
 
 const targetAudience = [
