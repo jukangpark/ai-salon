@@ -154,8 +154,8 @@ export default function Home() {
             variants={fadeUp}
             className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-4 leading-relaxed"
           >
-            AI는 혼자 쓰면 툴이지만,{" "}
-            <span className="text-slate-200 font-medium">같이 나누면 레버리지</span>입니다.
+            나 혼자 쓰면 기술,{" "}
+            <span className="text-slate-200 font-medium">우리 함께 나누면 가치</span>
           </motion.p>
           <motion.p
             variants={fadeUp}
