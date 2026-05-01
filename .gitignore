@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+public/logo-instagram.png
 
 # debug
 npm-debug.log*
