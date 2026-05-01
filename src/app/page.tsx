@@ -1,7 +1,24 @@
 "use client";
 
+import React from "react";
 import { motion } from "framer-motion";
 import Marquee from "react-fast-marquee";
+import Claude from "@lobehub/icons/es/Claude";
+import Gemini from "@lobehub/icons/es/Gemini";
+import Grok from "@lobehub/icons/es/Grok";
+import Midjourney from "@lobehub/icons/es/Midjourney";
+import Perplexity from "@lobehub/icons/es/Perplexity";
+import ElevenLabs from "@lobehub/icons/es/ElevenLabs";
+import Runway from "@lobehub/icons/es/Runway";
+import Ideogram from "@lobehub/icons/es/Ideogram";
+import NotebookLM from "@lobehub/icons/es/NotebookLM";
+import Suno from "@lobehub/icons/es/Suno";
+import Kling from "@lobehub/icons/es/Kling";
+import Cursor from "@lobehub/icons/es/Cursor";
+import Lovable from "@lobehub/icons/es/Lovable";
+import V0 from "@lobehub/icons/es/V0";
+import OpenAI from "@lobehub/icons/es/OpenAI";
+import DeepSeek from "@lobehub/icons/es/DeepSeek";
 import {
   Brain,
   Coffee,
@@ -28,23 +45,23 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.1 } },
 };
 
-const aiTools = [
-  { name: "ChatGPT", emoji: "💬", color: "#10A37F" },
-  { name: "Claude", emoji: "🧠", color: "#D97706" },
-  { name: "Midjourney", emoji: "🎨", color: "#ffffff" },
-  { name: "Perplexity", emoji: "🔍", color: "#20B2AA" },
-  { name: "Gemini", emoji: "✨", color: "#4285F4" },
-  { name: "Grok", emoji: "🤖", color: "#1D9BF0" },
-  { name: "ElevenLabs", emoji: "🎙️", color: "#FDB833" },
-  { name: "Runway", emoji: "🎬", color: "#FF4D4D" },
-  { name: "Ideogram", emoji: "🖼️", color: "#7C3AED" },
-  { name: "Canva AI", emoji: "🎨", color: "#00C4CC" },
-  { name: "NotebookLM", emoji: "📓", color: "#4285F4" },
-  { name: "Suno", emoji: "🎵", color: "#8B5CF6" },
-  { name: "Kling", emoji: "🎞️", color: "#FF6B6B" },
-  { name: "Cursor", emoji: "💻", color: "#a78bfa" },
-  { name: "Lovable", emoji: "🪄", color: "#f472b6" },
-  { name: "v0", emoji: "⚡", color: "#ffffff" },
+const aiTools: { name: string; Icon: React.ComponentType<{ size?: number; color?: string }> }[] = [
+  { name: "ChatGPT", Icon: OpenAI },
+  { name: "Claude", Icon: Claude.Color },
+  { name: "Gemini", Icon: Gemini.Color },
+  { name: "Perplexity", Icon: Perplexity.Color },
+  { name: "DeepSeek", Icon: DeepSeek.Color },
+  { name: "Midjourney", Icon: (p) => <Midjourney {...p} color="white" /> },
+  { name: "Grok", Icon: (p) => <Grok {...p} color="white" /> },
+  { name: "ElevenLabs", Icon: (p) => <ElevenLabs {...p} color="white" /> },
+  { name: "Runway", Icon: (p) => <Runway {...p} color="white" /> },
+  { name: "Ideogram", Icon: (p) => <Ideogram {...p} color="white" /> },
+  { name: "NotebookLM", Icon: (p) => <NotebookLM {...p} color="white" /> },
+  { name: "Suno", Icon: (p) => <Suno {...p} color="white" /> },
+  { name: "Kling", Icon: Kling.Color },
+  { name: "Cursor", Icon: (p) => <Cursor {...p} color="white" /> },
+  { name: "Lovable", Icon: Lovable.Color },
+  { name: "v0", Icon: (p) => <V0 {...p} color="white" /> },
 ];
 
 const targetAudience = [
@@ -189,13 +206,9 @@ export default function Home() {
               <div
                 key={tool.name}
                 className="mx-3 flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card hover:scale-105 transition-transform duration-200 cursor-default select-none"
-                style={{ borderColor: `${tool.color}22` }}
               >
-                <span className="text-lg">{tool.emoji}</span>
-                <span
-                  className="text-sm font-semibold whitespace-nowrap"
-                  style={{ color: tool.color }}
-                >
+                <tool.Icon size={22} />
+                <span className="text-sm font-semibold whitespace-nowrap text-slate-200">
                   {tool.name}
                 </span>
               </div>
@@ -207,13 +220,9 @@ export default function Home() {
                 <div
                   key={tool.name}
                   className="mx-3 flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card hover:scale-105 transition-transform duration-200 cursor-default select-none"
-                  style={{ borderColor: `${tool.color}22` }}
                 >
-                  <span className="text-lg">{tool.emoji}</span>
-                  <span
-                    className="text-sm font-semibold whitespace-nowrap"
-                    style={{ color: tool.color }}
-                  >
+                  <tool.Icon size={22} />
+                  <span className="text-sm font-semibold whitespace-nowrap text-slate-200">
                     {tool.name}
                   </span>
                 </div>
