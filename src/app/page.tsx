@@ -170,7 +170,7 @@ export default function Home() {
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <a
-              href="https://open.kakao.com"
+              href="https://open.kakao.com/o/gDCIvUsi"
               target="_blank"
               rel="noopener noreferrer"
               className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-semibold text-base transition-all duration-300 overflow-hidden"
@@ -561,7 +561,7 @@ export default function Home() {
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <a
-                href="https://open.kakao.com"
+                href="https://open.kakao.com/o/gDCIvUsi"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative inline-flex items-center justify-center gap-2 px-10 py-4 rounded-2xl font-semibold text-base transition-all duration-300 overflow-hidden"
@@ -580,7 +580,7 @@ export default function Home() {
                 className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-2xl font-semibold text-base glass-card text-slate-300 hover:text-white transition-all duration-300"
               >
                 <Lightbulb size={18} />
-                DM으로 문의 @ai_salon_official
+                DM으로 문의
               </a>
             </motion.div>
 
