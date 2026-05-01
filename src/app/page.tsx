@@ -437,6 +437,48 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─── 회비 ─── */}
+      <section className="relative py-24 px-6">
+        <div className="max-w-3xl mx-auto">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={stagger}
+          >
+            <motion.div variants={fadeUp} className="text-center mb-12">
+              <p className="text-cyan-400 font-medium text-sm uppercase tracking-widest mb-3">
+                Membership Fee
+              </p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-slate-100 mb-4">
+                회비 안내
+              </h2>
+            </motion.div>
+
+            <motion.div
+              variants={fadeUp}
+              className="relative glass-card rounded-3xl p-8 sm:p-10 text-center overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-600/5 to-violet-600/5" />
+              <div className="relative">
+                <div className="text-5xl mb-6">💰</div>
+                <p className="text-5xl sm:text-6xl font-bold gradient-text mb-3">
+                  월 2,000원
+                </p>
+                <p className="text-slate-400 text-base mb-6">
+                  매월 <span className="text-slate-200 font-semibold">5일</span>에 납부해주세요
+                </p>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20">
+                  <span className="text-cyan-300 text-sm font-medium">
+                    커피 한 잔보다 저렴하게, 함께하는 가치는 그 이상 ✨
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* ─── Hot Topics Banner ─── */}
       <section className="relative py-16 px-6">
         <div className="max-w-5xl mx-auto">
