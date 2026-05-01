@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Marquee from "react-fast-marquee";
+import Nav from "@/components/Nav";
 import Claude from "@lobehub/icons/es/Claude";
 import Gemini from "@lobehub/icons/es/Gemini";
 import Grok from "@lobehub/icons/es/Grok";
@@ -92,6 +93,8 @@ const topics = [
 export default function Home() {
   return (
     <main className="relative min-h-screen overflow-hidden">
+      <Nav />
+
       {/* Background orbs */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="animate-float absolute top-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-violet-600/10 blur-[120px]" />
@@ -614,7 +617,7 @@ export default function Home() {
       <footer className="relative py-8 px-6 border-t border-white/5">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-600 text-sm">
           <span className="font-semibold text-slate-500">AI 살롱 광주</span>
-          <span>AI는 혼자 쓰면 툴이지만, 같이 나누면 레버리지입니다 🚀</span>
+          <span>나 혼자 쓰면 기술, 우리 함께 나누면 가치 🚀</span>
         </div>
       </footer>
     </main>
