@@ -46,7 +46,7 @@ body {
 .animate-pulse-glow { animation: pulse-glow 4s ease-in-out infinite; }
 
 .gradient-text {
-  background: linear-gradient(135deg, #a78bfa, #22d3ee, #f472b6);
+  background: linear-gradient(135deg, #f472b6, #fb7185, #c084fc);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

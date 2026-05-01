@@ -79,8 +79,8 @@ export default function Home() {
         >
           {/* Badge */}
           <motion.div variants={fadeUp} className="flex justify-center mb-8">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-sm text-violet-300 font-medium">
-              <Sparkles size={14} className="text-violet-400" />
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-sm text-pink-300 font-medium">
+              <Sparkles size={14} className="text-pink-400" />
               광주 1기 멤버 모집 중 🔥
             </span>
           </motion.div>
@@ -168,13 +168,13 @@ export default function Home() {
           >
             {[
               {
-                icon: <MapPin size={24} className="text-violet-400" />,
-                title: "광주 시내 카페",
+                icon: <MapPin size={24} className="text-pink-400" />,
+                title: "카페",
                 desc: "편안한 카페 공간에서 아메리카노 한 잔과 함께 자유롭게 이야기 나눠요.",
                 accent: "violet",
               },
               {
-                icon: <Users size={24} className="text-cyan-400" />,
+                icon: <Users size={24} className="text-fuchsia-400" />,
                 title: "89년생~06년생",
                 desc: "같은 세대 감성으로 편하게 소통할 수 있는 멤버들이 모여요.",
                 accent: "cyan",
@@ -220,7 +220,7 @@ export default function Home() {
             variants={stagger}
           >
             <motion.div variants={fadeUp} className="text-center mb-16">
-              <p className="text-violet-400 font-medium text-sm uppercase tracking-widest mb-3">
+              <p className="text-pink-400 font-medium text-sm uppercase tracking-widest mb-3">
                 Welcome
               </p>
               <h2 className="text-3xl sm:text-4xl font-bold text-slate-100 mb-4">
@@ -249,7 +249,7 @@ export default function Home() {
               >
                 <span className="text-2xl flex-shrink-0 mt-0.5">🚀</span>
                 <p className="text-slate-300 text-sm leading-relaxed">
-                  광주에서 AI로 살아남고 싶은 모든 분
+                  AI로 살아남고 싶은 모든 분
                 </p>
               </motion.div>
             </div>
@@ -267,7 +267,7 @@ export default function Home() {
             variants={stagger}
           >
             <motion.div variants={fadeUp} className="text-center mb-16">
-              <p className="text-cyan-400 font-medium text-sm uppercase tracking-widest mb-3">
+              <p className="text-fuchsia-400 font-medium text-sm uppercase tracking-widest mb-3">
                 Topics
               </p>
               <h2 className="text-3xl sm:text-4xl font-bold text-slate-100 mb-4">
@@ -397,8 +397,8 @@ export default function Home() {
           >
             <motion.div variants={fadeUp}>
               <div className="inline-flex items-center gap-2 mb-6">
-                <Zap size={20} className="text-violet-400" />
-                <span className="text-violet-400 font-medium text-sm uppercase tracking-widest">
+                <Zap size={20} className="text-pink-400" />
+                <span className="text-pink-400 font-medium text-sm uppercase tracking-widest">
                   Join Us
                 </span>
               </div>
