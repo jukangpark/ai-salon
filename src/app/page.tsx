@@ -121,7 +121,7 @@ export default function Home() {
               rel="noopener noreferrer"
               className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-semibold text-base transition-all duration-300 overflow-hidden"
               style={{
-                background: "linear-gradient(135deg, #8b5cf6, #06b6d4)",
+                background: "linear-gradient(135deg, #ec4899, #c084fc)",
               }}
             >
               <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300" />
@@ -431,7 +431,7 @@ export default function Home() {
                 rel="noopener noreferrer"
                 className="group relative inline-flex items-center justify-center gap-2 px-10 py-4 rounded-2xl font-semibold text-base transition-all duration-300 overflow-hidden"
                 style={{
-                  background: "linear-gradient(135deg, #8b5cf6, #06b6d4)",
+                  background: "linear-gradient(135deg, #ec4899, #c084fc)",
                 }}
               >
                 <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300" />
