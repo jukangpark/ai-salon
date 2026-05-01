@@ -120,6 +120,17 @@ export default function Home() {
           variants={stagger}
           className="max-w-4xl mx-auto"
         >
+          {/* Logo */}
+          <motion.div variants={fadeUp} className="flex justify-center mb-6">
+            <motion.img
+              src="/logo.svg"
+              alt="AI 살롱 광주 로고"
+              className="w-24 h-24 sm:w-28 sm:h-28 drop-shadow-[0_0_24px_rgba(244,114,182,0.5)]"
+              animate={{ y: [0, -8, 0] }}
+              transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
+            />
+          </motion.div>
+
           {/* Badge */}
           <motion.div variants={fadeUp} className="flex justify-center mb-8">
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-sm text-pink-300 font-medium">
