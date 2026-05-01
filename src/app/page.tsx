@@ -574,11 +574,13 @@ export default function Home() {
                 카카오 오픈채팅 참여
               </a>
               <a
-                href="mailto:skyqkrwnkrd@gmail.com"
+                href="https://www.instagram.com/ai_salon_official/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-2xl font-semibold text-base glass-card text-slate-300 hover:text-white transition-all duration-300"
               >
                 <Lightbulb size={18} />
-                DM으로 문의
+                DM으로 문의 @ai_salon_official
               </a>
             </motion.div>
 
