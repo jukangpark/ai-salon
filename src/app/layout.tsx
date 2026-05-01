@@ -13,14 +13,15 @@ export const metadata: Metadata = {
     "광주에서 AI 활용법을 함께 나누는 소셜 모임. ChatGPT, Claude, Gemini 꿀팁부터 사이드 프로젝트까지, AI 덕후들이 모이는 곳.",
   keywords: ["AI", "광주", "모임", "인공지능", "AI살롱", "사이드프로젝트"],
   icons: {
-    icon: "/logo.svg",
-    shortcut: "/logo.svg",
+    icon: "/instagram_profile.png",
+    shortcut: "/instagram_profile.png",
+    apple: "/instagram_profile.png",
   },
   openGraph: {
     title: "AI 살롱 광주",
     description: "광주에서 AI 활용법을 함께 나누는 소셜 모임",
     type: "website",
-    images: ["/logo.svg"],
+    images: ["/instagram_profile.png"],
   },
 };
 

@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Calendar, Coffee, MapPin, MessageSquare, Sparkles, Users, Zap } from "lucide-react";
 
@@ -18,10 +17,6 @@ const stagger = {
 };
 
 export default function InvitationPage() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return null;
-
   return (
     <main className="relative min-h-screen overflow-hidden flex flex-col items-center justify-start px-4 py-12">
       {/* Background orbs */}
@@ -55,9 +50,9 @@ export default function InvitationPage() {
           <div className="relative">
             {/* Logo */}
             <motion.img
-              src="/logo.svg"
+              src="/instagram_profile.png"
               alt="AI 살롱 광주"
-              className="w-20 h-20 mx-auto mb-5 drop-shadow-[0_0_20px_rgba(244,114,182,0.5)]"
+              className="w-20 h-20 mx-auto mb-5 rounded-full object-cover drop-shadow-[0_0_20px_rgba(244,114,182,0.5)]"
               animate={{ y: [0, -6, 0] }}
               transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
             />

@@ -101,9 +101,9 @@ export default function PosterPage() {
             {/* Logo + name row */}
             <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
               <img
-                src="/logo.svg"
+                src="/instagram_profile.png"
                 alt="AI 살롱 광주"
-                style={{ width: "52px", height: "52px", filter: "drop-shadow(0 0 14px rgba(244,114,182,0.6))" }}
+                style={{ width: "52px", height: "52px", borderRadius: "50%", filter: "drop-shadow(0 0 14px rgba(244,114,182,0.6))" }}
               />
               <div>
                 <div

@@ -123,7 +123,7 @@ export default function Home() {
           {/* Logo */}
           <motion.div variants={fadeUp} className="flex justify-center mb-6">
             <motion.img
-              src="/logo.svg"
+              src="/instagram_profile.png"
               alt="AI 살롱 광주 로고"
               className="w-24 h-24 sm:w-28 sm:h-28 drop-shadow-[0_0_24px_rgba(244,114,182,0.5)]"
               animate={{ y: [0, -8, 0] }}
