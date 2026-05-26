@@ -144,6 +144,7 @@ const chapters: Chapter[] = [
             subItems: [
               "본 회칙 준수",
               "회비의 기한 내 납부 (제12조 참고)",
+              "2주에 3회 이상 카카오 단톡방 온라인 공유 활동 (제19조 참고)",
               "모임 내 다른 회원에 대한 존중 및 예의 유지",
               "모임에서 얻은 개인정보 외부 유출 금지",
             ],
@@ -290,6 +291,29 @@ const chapters: Chapter[] = [
       },
       {
         num: "제19조",
+        title: "온라인 공유 활동",
+        paragraphs: [
+          {
+            text: "회원은 2주에 3회 이상 카카오 오픈채팅 단톡방에 AI 스터디 내용 또는 AI 활용 사례를 공유한다.",
+          },
+          {
+            text: "공유 내용의 예시는 다음 각 호와 같다.",
+            subItems: [
+              "AI 툴 사용 후기·꿀팁",
+              "스터디 내용·정리본",
+              "AI 뉴스·신규 모델 소식",
+              "AI 활용 결과물 (이미지·영상·코드 등)",
+              "기타 살롱 구성원에게 도움이 될 AI 관련 내용",
+            ],
+          },
+          {
+            text: "단순 링크 공유도 인정하며, 짧은 코멘트를 함께 달아주면 더욱 좋다.",
+            note: "강제보다는 함께 성장하는 문화를 만들기 위한 약속으로 운영한다.",
+          },
+        ],
+      },
+      {
+        num: "제20조",
         title: "비정기 모임",
         paragraphs: [
           {
@@ -311,7 +335,7 @@ const chapters: Chapter[] = [
     accent: "amber",
     articles: [
       {
-        num: "제20조",
+        num: "제21조",
         title: "운영진 구성",
         paragraphs: [
           {
@@ -321,7 +345,7 @@ const chapters: Chapter[] = [
         ],
       },
       {
-        num: "제21조",
+        num: "제22조",
         title: "운영진 교체",
         paragraphs: [
           {
@@ -340,7 +364,7 @@ const chapters: Chapter[] = [
     accent: "violet",
     articles: [
       {
-        num: "제22조",
+        num: "제23조",
         title: "품위 유지",
         paragraphs: [
           {
@@ -355,7 +379,7 @@ const chapters: Chapter[] = [
         ],
       },
       {
-        num: "제23조",
+        num: "제24조",
         title: "개인정보 보호",
         paragraphs: [
           {
@@ -367,7 +391,7 @@ const chapters: Chapter[] = [
         ],
       },
       {
-        num: "제24조",
+        num: "제25조",
         title: "분쟁 해결",
         paragraphs: [
           { text: "회원 간 분쟁 발생 시 운영진이 중재 역할을 수행한다." },
@@ -384,7 +408,7 @@ const chapters: Chapter[] = [
     accent: "pink",
     articles: [
       {
-        num: "제25조",
+        num: "제26조",
         title: "회칙 개정",
         paragraphs: [
           { text: "회칙 개정은 대표가 결정한다." },
@@ -399,7 +423,7 @@ const chapters: Chapter[] = [
     accent: "cyan",
     articles: [
       {
-        num: "제26조",
+        num: "제27조",
         title: "시행일",
         paragraphs: [
           {
@@ -408,7 +432,7 @@ const chapters: Chapter[] = [
         ],
       },
       {
-        num: "제27조",
+        num: "제28조",
         title: "미규정 사항",
         paragraphs: [
           {
@@ -627,7 +651,7 @@ export default function RulesPage() {
       <footer className="relative py-8 px-6 border-t border-white/5">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-600 text-sm">
           <span className="font-semibold text-slate-500">AI 살롱 광주</span>
-          <span>나 혼자 쓰면 기술, 우리 함께 나누면 가치 🚀</span>
+          <span>나 혼자 쓰면 기술, 함께 나누면 가치 🚀</span>
         </div>
       </footer>
     </main>

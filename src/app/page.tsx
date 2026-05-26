@@ -27,7 +27,6 @@ import {
   Brain,
   Coffee,
   Lightbulb,
-  MapPin,
   MessageSquare,
   Newspaper,
   Rocket,
@@ -72,11 +71,15 @@ const aiTools: { name: string; Icon: React.ComponentType<{ size?: number; color?
 ];
 
 const targetAudience = [
-  { icon: "🤔", text: "AI 툴을 쓰는데 제대로 쓰는 건지 모르겠는 분" },
-  { icon: "💬", text: "ChatGPT / Claude / Gemini 꿀팁 나눠주고 싶은 분" },
-  { icon: "🛠️", text: "AI로 사이드 프로젝트 하고 있는 분" },
-  { icon: "📰", text: "매주 쏟아지는 AI 뉴스, 같이 소화하고 싶은 분" },
-  { icon: "😂", text: "그냥 AI 얘기 실컷 하고 싶은 분" },
+  { icon: "💬", text: "ChatGPT·Claude·Gemini 꿀팁 나누고 싶은 분" },
+  { icon: "🛠️", text: "AI로 사이드 프로젝트 만들고 있는 분" },
+  { icon: "📰", text: "AI 뉴스 혼자 보기 아까운 분" },
+  { icon: "⚡", text: "자동화에 관심 있는 분 (유튜브, 릴스, 마케팅, 크롤링, 주식투자 등)" },
+  { icon: "🤖", text: "나만의 AI 비서 만들고 싶은 분" },
+  { icon: "🎬", text: "재미있는 AI 콘텐츠 만들고 싶은 분 (영화, 웹툰, 음악 등)" },
+  { icon: "💸", text: "AI로 수익화·부업 해보고 싶은 분" },
+  { icon: "🏢", text: "현업에서 AI 제대로 활용하고 싶은 분" },
+  { icon: "👨‍💻", text: "코딩 배우고 싶은 분" },
 ];
 
 const topics = [
@@ -158,13 +161,13 @@ export default function Home() {
             className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-4 leading-relaxed"
           >
             나 혼자 쓰면 기술,{" "}
-            <span className="text-slate-200 font-medium">우리 함께 나누면 가치</span>
+            <span className="text-slate-200 font-medium">함께 나누면 가치</span>
           </motion.p>
           <motion.p
             variants={fadeUp}
             className="text-base text-slate-500 max-w-xl mx-auto mb-12"
           >
-            AI 활용법을 함께 나누는 소셜 네트워크
+            AI 활용법을 자유롭게 공유하는 모임
           </motion.p>
 
           {/* CTA buttons */}
@@ -264,21 +267,21 @@ export default function Home() {
           >
             {[
               {
-                icon: <MapPin size={24} className="text-pink-400" />,
-                title: "카페",
-                desc: "편안한 카페 공간에서 아메리카노 한 잔과 함께 자유롭게 이야기 나눠요.",
+                icon: <Rocket size={24} className="text-pink-400" />,
+                title: "직접 써보고",
+                desc: "단순 정보 공유가 아니라, 직접 쓰고 경험한 것을 나눠요.",
                 accent: "violet",
               },
               {
                 icon: <Users size={24} className="text-fuchsia-400" />,
-                title: "89년생~06년생",
-                desc: "같은 세대 감성으로 편하게 소통할 수 있는 멤버들이 모여요.",
+                title: "서로 알려주고",
+                desc: "초보도 부담 없이 질문하고, 아는 분은 편하게 알려주는 분위기예요.",
                 accent: "cyan",
               },
               {
                 icon: <Brain size={24} className="text-pink-400" />,
-                title: "AI 활용 사례 공유",
-                desc: "매번 모임 때 '이번 주 AI 판에서 제일 핫했던 것' 한 가지씩 들고 와요 🔥",
+                title: "결과를 만들어내고",
+                desc: "꾸준히 성장하는 분위기 속에서 함께 실질적인 결과를 만들어가요.",
                 accent: "pink",
               },
             ].map((item) => (
@@ -338,16 +341,6 @@ export default function Home() {
                   <p className="text-slate-300 text-sm leading-relaxed">{item.text}</p>
                 </motion.div>
               ))}
-              {/* Last card spans full width on 3-col */}
-              <motion.div
-                variants={fadeUp}
-                className="glass-card rounded-2xl p-5 flex items-start gap-4 hover:scale-[1.02] transition-transform duration-300 cursor-default sm:col-span-2 lg:col-span-1"
-              >
-                <span className="text-2xl flex-shrink-0 mt-0.5">🚀</span>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  AI로 살아남고 싶은 모든 분
-                </p>
-              </motion.div>
             </div>
           </motion.div>
         </div>
@@ -555,8 +548,8 @@ export default function Home() {
               variants={fadeUp}
               className="text-slate-400 text-lg mb-10 leading-relaxed"
             >
-              첫 모임은 어색하지만
-              <br />두 번째부터 진짜 재밌어지는 거 알잖아요 😏
+              나 혼자 쓰면 기술,{" "}
+              <span className="text-slate-200 font-medium">함께 나누면 가치</span>
             </motion.p>
 
             <motion.div
@@ -617,7 +610,7 @@ export default function Home() {
       <footer className="relative py-8 px-6 border-t border-white/5">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-600 text-sm">
           <span className="font-semibold text-slate-500">AI 살롱 광주</span>
-          <span>나 혼자 쓰면 기술, 우리 함께 나누면 가치 🚀</span>
+          <span>나 혼자 쓰면 기술, 함께 나누면 가치 🚀</span>
         </div>
       </footer>
     </main>
