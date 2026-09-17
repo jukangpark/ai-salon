@@ -32,6 +32,7 @@ type Stats = {
     total: number;
     top: { userId: string; name: string; count: number; level: number }[];
     active: { d7: number; d30: number };
+    activity: ChatActivity;
   };
   profile: { job: number; introduction: number; mbti: number; hobby: number; any: number };
   mbti: { type: string; count: number }[];
@@ -48,7 +49,31 @@ type Stats = {
   };
 };
 
+type MonthlyRankRow = { month: string; userId: string; name: string; count: number; present: boolean };
+
+type ChatActivity = {
+  totalMessages: number;
+  firstDay: string | null;
+  averages: { perDay30: number; perDayAll: number; speakers30: number; perSpeaker30: number; perMember: number };
+  peakHour: number | null;
+  peakWeekday: number | null;
+  busiestDay: { day: string; count: number } | null;
+  hourly: { hour: number; count: number }[];
+  weekday: { weekday: number; count: number }[];
+  daily: { day: string; count: number; speakers: number }[];
+  monthly: {
+    months: { month: string; total: number; participants: number }[];
+    ranking: Record<string, MonthlyRankRow[]>;
+  };
+};
+
 const MEDALS = ["🥇", "🥈", "🥉"];
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+const fmtHour = (h: number) => `${h < 12 ? "오전" : "오후"} ${h % 12 || 12}시`;
+const fmtDay = (d: string) => {
+  const [, m, day] = d.split("-");
+  return `${Number(m)}/${Number(day)}`;
+};
 const pct = (n: number, d: number) => (d ? Math.round((n / d) * 100) : 0);
 const fmtMonth = (ym: string) => {
   const [y, m] = ym.split("-");
@@ -117,9 +142,61 @@ function BarRow({
   );
 }
 
+// 세로 막대. 막대는 반드시 고정 높이 컨테이너의 직접 자식이어야 % 높이가 풀린다.
+// showValues: 막대 위 숫자 (칸이 좁은 24시간·60일 차트는 끈다), labelEvery: 아래 라벨 간격.
+function VBars({
+  data,
+  height = "h-28",
+  gradient = "from-violet-500/60 to-fuchsia-300",
+  showValues = true,
+  labelEvery = 1,
+}: {
+  data: { key: string; label: string; value: number; highlight?: boolean; title?: string }[];
+  height?: string;
+  gradient?: string;
+  showValues?: boolean;
+  labelEvery?: number;
+}) {
+  const max = Math.max(1, ...data.map((d) => d.value));
+  const gap = data.length > 30 ? "gap-px" : data.length > 12 ? "gap-0.5" : "gap-1.5";
+  return (
+    <div>
+      {showValues && (
+        <div className={`flex ${gap}`}>
+          {data.map((d) => (
+            <span key={d.key} className="flex-1 min-w-0 text-center text-[10px] text-slate-400 tabular-nums">
+              {d.value || ""}
+            </span>
+          ))}
+        </div>
+      )}
+      <div className={`flex items-end ${gap} ${height} mt-1`}>
+        {data.map((d) => (
+          <div
+            key={d.key}
+            title={d.title ?? `${d.label}: ${d.value}`}
+            className={`flex-1 min-w-0 rounded-t-sm bg-gradient-to-t ${
+              d.highlight ? "from-amber-500/70 to-amber-200" : gradient
+            }`}
+            style={{ height: `${Math.max(d.value ? 3 : 1, (d.value / max) * 100)}%` }}
+          />
+        ))}
+      </div>
+      <div className={`flex ${gap} mt-1`}>
+        {data.map((d, i) => (
+          <span key={d.key} className="flex-1 min-w-0 text-center text-[10px] text-slate-600 tabular-nums overflow-visible whitespace-nowrap">
+            {i % labelEvery === 0 ? d.label : ""}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function StatsPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState(false);
+  const [rankMonth, setRankMonth] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(STATS_API_URL)
@@ -135,9 +212,12 @@ export default function StatsPage() {
   const maxRegion = stats ? Math.max(1, ...stats.regions.map((r) => r.total)) : 1;
   const maxRank = stats ? Math.max(1, ...stats.ranks.map((r) => r.count)) : 1;
   const maxMbti = stats ? Math.max(1, ...stats.mbti.map((m) => m.count)) : 1;
-  const maxJoin = stats ? Math.max(1, ...stats.joins.map((j) => j.count)) : 1;
   const maxChat = stats ? Math.max(1, ...stats.chat.top.map((c) => c.count)) : 1;
   const recentJoins = stats ? stats.joins.slice(-12) : [];
+  const act = stats?.chat.activity;
+  const rankMonths = act ? act.monthly.months.map((m) => m.month).filter((m) => act.monthly.ranking[m]?.length) : [];
+  const shownRankMonth = rankMonth ?? rankMonths[rankMonths.length - 1] ?? null;
+  const maxMonthly = act ? Math.max(1, ...act.monthly.months.map((m) => m.total)) : 1;
 
   return (
     <main className="relative min-h-screen overflow-hidden">
@@ -263,9 +343,143 @@ export default function StatsPage() {
                 </ul>
               </Card>
 
+              {/* 대화 활동 */}
+              {act && (
+                <>
+                  <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <Stat label="하루 평균 발화 (최근 30일)" value={`${act.averages.perDay30}회`} tone="text-cyan-300" />
+                    <Stat label="하루 평균 발화 (전체)" value={`${act.averages.perDayAll}회`} tone="text-violet-300" />
+                    <Stat
+                      label="최근 30일 말한 사람"
+                      value={`${act.averages.speakers30}명 · 1인 ${act.averages.perSpeaker30}회`}
+                      tone="text-pink-300"
+                    />
+                    <Stat
+                      label="가장 활발했던 날"
+                      value={act.busiestDay ? `${fmtDay(act.busiestDay.day)} · ${act.busiestDay.count}회` : "-"}
+                      tone="text-amber-300"
+                    />
+                  </motion.div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <Card
+                      title="🕒 시간대별 발화량"
+                      sub={act.peakHour !== null ? `가장 활발: ${fmtHour(act.peakHour)}` : undefined}
+                    >
+                      <VBars
+                        showValues={false}
+                        labelEvery={3}
+                        gradient="from-cyan-500/60 to-cyan-200"
+                        data={act.hourly.map((h) => ({
+                          key: String(h.hour),
+                          label: String(h.hour),
+                          value: h.count,
+                          highlight: h.hour === act.peakHour,
+                          title: `${fmtHour(h.hour)}: ${h.count}회`,
+                        }))}
+                      />
+                    </Card>
+                    <Card
+                      title="📅 요일별 발화량"
+                      sub={act.peakWeekday !== null ? `가장 활발: ${WEEKDAYS[act.peakWeekday]}요일` : undefined}
+                    >
+                      <VBars
+                        gradient="from-pink-500/60 to-pink-200"
+                        data={act.weekday.map((w) => ({
+                          key: String(w.weekday),
+                          label: WEEKDAYS[w.weekday],
+                          value: w.count,
+                          highlight: w.weekday === act.peakWeekday,
+                        }))}
+                      />
+                    </Card>
+                  </div>
+
+                  <Card
+                    title="📈 최근 60일 발화 추이"
+                    sub={`60일 합계 ${act.daily.reduce((s, d) => s + d.count, 0).toLocaleString()}회`}
+                  >
+                    <VBars
+                      showValues={false}
+                      labelEvery={10}
+                      data={act.daily.map((d) => ({
+                        key: d.day,
+                        label: fmtDay(d.day),
+                        value: d.count,
+                        title: `${d.day}: ${d.count}회 · ${d.speakers}명`,
+                      }))}
+                    />
+                  </Card>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <Card title="🗓️ 월별 발화량" sub={act.firstDay ? `${fmtDay(act.firstDay)} 부터 집계` : undefined}>
+                      <ul className="space-y-2">
+                        {[...act.monthly.months].reverse().map((m) => (
+                          <li key={m.month} className="flex items-center gap-3 text-sm">
+                            <span className="w-12 shrink-0 text-xs text-slate-400 tabular-nums">{fmtMonth(m.month)}</span>
+                            <div className="flex-1 h-2.5 rounded-full bg-white/5 overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-violet-400 to-cyan-400"
+                                style={{ width: `${(m.total / maxMonthly) * 100}%` }}
+                              />
+                            </div>
+                            <span className="w-24 shrink-0 text-right text-xs text-slate-300 tabular-nums">
+                              {m.total.toLocaleString()}회 · {m.participants}명
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </Card>
+
+                    <Card title="🏆 월별 채팅 랭킹" sub="나간 분도 그 달 기록엔 남아요">
+                      {shownRankMonth ? (
+                        <>
+                          <div className="flex flex-wrap gap-1 mb-3">
+                            {rankMonths.map((m) => (
+                              <button
+                                key={m}
+                                type="button"
+                                onClick={() => setRankMonth(m)}
+                                className={`px-2.5 py-1 rounded-lg text-xs font-medium tabular-nums transition-colors ${
+                                  m === shownRankMonth ? "bg-white/10 text-white" : "text-slate-500 hover:text-white"
+                                }`}
+                              >
+                                {fmtMonth(m)}
+                              </button>
+                            ))}
+                          </div>
+                          <ol className="space-y-1.5">
+                            {act.monthly.ranking[shownRankMonth].map((r, i) => (
+                              <li key={r.userId} className="flex items-center gap-3 text-sm">
+                                <span className="w-6 shrink-0 text-center text-xs text-slate-500">{MEDALS[i] ?? i + 1}</span>
+                                {r.present ? (
+                                  <Link
+                                    href={`/members/${r.userId}`}
+                                    className="flex-1 truncate text-slate-200 hover:text-violet-300 transition-colors"
+                                  >
+                                    {parseNick(r.name).name}
+                                  </Link>
+                                ) : (
+                                  <span className="flex-1 truncate text-slate-500">
+                                    {parseNick(r.name).name} <span className="text-[10px]">(나감)</span>
+                                  </span>
+                                )}
+                                <span className="text-xs text-slate-400 tabular-nums">{r.count.toLocaleString()}회</span>
+                              </li>
+                            ))}
+                          </ol>
+                        </>
+                      ) : (
+                        <p className="text-sm text-slate-500">아직 집계된 달이 없어요.</p>
+                      )}
+                    </Card>
+                  </div>
+                </>
+              )}
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* 채팅 TOP */}
-                <Card title="💬 채팅 TOP 10" sub={`최근 7일 활동 ${stats.chat.active.d7}명 · 30일 ${stats.chat.active.d30}명`}>
+                <Card title="💬 누적 채팅 TOP 10" sub={`최근 7일 활동 ${stats.chat.active.d7}명 · 30일 ${stats.chat.active.d30}명`}>
                   <ol className="space-y-2">
                     {stats.chat.top.map((c, i) => {
                       const p = parseNick(c.name);
@@ -336,33 +550,10 @@ export default function StatsPage() {
                 {recentJoins.length === 0 ? (
                   <p className="text-sm text-slate-500">아직 데이터가 없어요.</p>
                 ) : (
-                  <div>
-                    <div className="flex gap-1.5">
-                      {recentJoins.map((j) => (
-                        <span key={j.month} className="flex-1 min-w-0 text-center text-[10px] text-slate-400 tabular-nums">
-                          {j.count || ""}
-                        </span>
-                      ))}
-                    </div>
-                    {/* 막대는 고정 높이 컨테이너의 직접 자식이어야 % 높이가 풀린다 (flex-col 안에 넣으면 0 이 된다) */}
-                    <div className="flex items-end gap-1.5 h-28 mt-1">
-                      {recentJoins.map((j) => (
-                        <div
-                          key={j.month}
-                          className="flex-1 min-w-0 rounded-t-md bg-gradient-to-t from-emerald-500/60 to-emerald-300"
-                          style={{ height: `${Math.max(j.count ? 4 : 1, (j.count / maxJoin) * 100)}%` }}
-                          title={`${j.month}: ${j.count}명`}
-                        />
-                      ))}
-                    </div>
-                    <div className="flex gap-1.5 mt-1">
-                      {recentJoins.map((j) => (
-                        <span key={j.month} className="flex-1 min-w-0 text-center text-[10px] text-slate-600 tabular-nums">
-                          {fmtMonth(j.month)}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                  <VBars
+                    gradient="from-emerald-500/60 to-emerald-300"
+                    data={recentJoins.map((j) => ({ key: j.month, label: fmtMonth(j.month), value: j.count, title: `${j.month}: ${j.count}명` }))}
+                  />
                 )}
               </Card>
 
