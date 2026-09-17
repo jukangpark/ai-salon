@@ -20,6 +20,68 @@ const stagger = {
 // 살롱봇 서버(no-more-chatbot-server)의 공개 읽기 전용 API. 시각은 unix 초.
 const API_URL = "https://no-more.app/api/aisalon/study-cert";
 const CALENDAR_URL = `${API_URL}/calendar`;
+const RANKING_URL = `${API_URL}/ranking?limit=5`;
+
+type StudyRanking = { members: { name: string; count: number }[] };
+
+const MEDALS = ["🥇", "🥈", "🥉"];
+
+// 전체 기간 인증 횟수 TOP5. 불러오지 못하거나 비어 있으면 아무것도 그리지 않는다.
+function StudyRanking() {
+  const [members, setMembers] = useState<StudyRanking["members"] | null>(null);
+
+  useEffect(() => {
+    fetch(RANKING_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error(String(res.status));
+        return res.json();
+      })
+      .then((json: StudyRanking) => setMembers(json.members))
+      .catch(() => setMembers([]));
+  }, []);
+
+  if (!members || members.length === 0) return null;
+
+  return (
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={fadeUp}
+      className="glass-card rounded-2xl p-5 sm:p-6 mb-8"
+    >
+      <div className="flex items-baseline justify-between mb-4">
+        <p className="text-base font-semibold text-slate-100">🏆 인증 랭킹 TOP 5</p>
+        <p className="text-xs text-slate-500">전체 기간 누적</p>
+      </div>
+      <ol className="space-y-2">
+        {members.map((m, i) => (
+          <li
+            key={`${m.name}-${i}`}
+            className={`flex items-center gap-3 rounded-xl px-4 py-2.5 border ${
+              i === 0
+                ? "border-amber-400/30 bg-amber-400/10"
+                : "border-white/5 bg-white/[0.03]"
+            }`}
+          >
+            <span className="w-7 text-center text-base tabular-nums">
+              {MEDALS[i] ?? <span className="text-xs text-slate-500">{i + 1}</span>}
+            </span>
+            <span className="flex-1 min-w-0 truncate text-sm font-medium text-slate-200">
+              {m.name}
+            </span>
+            <span
+              className={`shrink-0 text-xs font-semibold tabular-nums ${
+                i === 0 ? "text-amber-200" : "text-emerald-300"
+              }`}
+            >
+              {m.count}회
+            </span>
+          </li>
+        ))}
+      </ol>
+    </motion.div>
+  );
+}
 
 type StudyCalendar = {
   month: string; // YYYY-MM (KST)
@@ -281,6 +343,7 @@ export default function StudyPage() {
 
       <section className="relative px-6 pb-32">
         <div className="max-w-3xl mx-auto">
+          <StudyRanking />
           <StudyHeatmap />
 
           {error && (
