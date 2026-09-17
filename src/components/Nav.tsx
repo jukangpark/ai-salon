@@ -35,6 +35,16 @@ export default function Nav() {
             명령어
           </Link>
           <Link
+            href="/study"
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              pathname === "/study"
+                ? "text-emerald-300 bg-emerald-500/10"
+                : "text-slate-400 hover:text-white"
+            }`}
+          >
+            스터디
+          </Link>
+          <Link
             href="/rules"
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               pathname === "/rules"
