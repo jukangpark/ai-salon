@@ -336,17 +336,32 @@ export default function StatsPage() {
                 {recentJoins.length === 0 ? (
                   <p className="text-sm text-slate-500">아직 데이터가 없어요.</p>
                 ) : (
-                  <div className="flex items-end gap-1.5 h-32">
-                    {recentJoins.map((j) => (
-                      <div key={j.month} className="flex-1 flex flex-col items-center gap-1 min-w-0">
-                        <span className="text-[10px] text-slate-400 tabular-nums">{j.count || ""}</span>
+                  <div>
+                    <div className="flex gap-1.5">
+                      {recentJoins.map((j) => (
+                        <span key={j.month} className="flex-1 min-w-0 text-center text-[10px] text-slate-400 tabular-nums">
+                          {j.count || ""}
+                        </span>
+                      ))}
+                    </div>
+                    {/* 막대는 고정 높이 컨테이너의 직접 자식이어야 % 높이가 풀린다 (flex-col 안에 넣으면 0 이 된다) */}
+                    <div className="flex items-end gap-1.5 h-28 mt-1">
+                      {recentJoins.map((j) => (
                         <div
-                          className="w-full rounded-t-md bg-gradient-to-t from-emerald-500/60 to-emerald-300"
+                          key={j.month}
+                          className="flex-1 min-w-0 rounded-t-md bg-gradient-to-t from-emerald-500/60 to-emerald-300"
                           style={{ height: `${Math.max(j.count ? 4 : 1, (j.count / maxJoin) * 100)}%` }}
+                          title={`${j.month}: ${j.count}명`}
                         />
-                        <span className="text-[10px] text-slate-600 tabular-nums">{fmtMonth(j.month)}</span>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                    <div className="flex gap-1.5 mt-1">
+                      {recentJoins.map((j) => (
+                        <span key={j.month} className="flex-1 min-w-0 text-center text-[10px] text-slate-600 tabular-nums">
+                          {fmtMonth(j.month)}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
               </Card>
