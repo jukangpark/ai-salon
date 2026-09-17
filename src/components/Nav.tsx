@@ -55,6 +55,16 @@ export default function Nav() {
             스터디
           </Link>
           <Link
+            href="/stats"
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              pathname === "/stats"
+                ? "text-amber-300 bg-amber-500/10"
+                : "text-slate-400 hover:text-white"
+            }`}
+          >
+            통계
+          </Link>
+          <Link
             href="/rules"
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               pathname === "/rules"
