@@ -46,7 +46,7 @@ const categories: Category[] = [
     commands: [
       { cmd: "직업등록", args: "[내용]", desc: "내 직업을 프로필에 등록해요." },
       { cmd: "자기소개등록", args: "[내용]", desc: "내 자기소개를 등록해요." },
-      { cmd: "MBTI등록", args: "[값]", desc: "내 MBTI를 등록해요." },
+      { cmd: "MBTI등록", args: "[값]", desc: "내 MBTI를 등록해요. (또는 MBTI)" },
       { cmd: "취미등록", args: "[내용]", desc: "내 취미를 등록해요." },
     ],
   },
@@ -89,7 +89,7 @@ const categories: Category[] = [
     title: "멤버 히스토리",
     accent: "fuchsia",
     commands: [
-      { cmd: "방문이력", args: "[이름?]", desc: "입·퇴장 이력을 조회해요." },
+      { cmd: "방문이력", args: "[이름?]", desc: "입·퇴장 이력을 조회해요. (또는 입퇴장이력)" },
       { cmd: "닉변이력", args: "[이름?]", desc: "닉네임 변경 이력을 조회해요." },
     ],
   },
@@ -156,12 +156,12 @@ const categories: Category[] = [
     emoji: "🌸",
     title: "AI",
     accent: "fuchsia",
-    note: "📰 AI 뉴스는 매일 오전 10시(KST)에 자동으로 올라와요 (별도 명령 없음).",
+    note: "골드 이상 등급만 사용할 수 있어요. 📰 AI 뉴스 자동 브리핑은 현재 쉬고 있어요.",
     commands: [
       {
         cmd: "자유질문",
         args: "[질문]",
-        desc: "살롱봇에게 자유롭게 질문하고 AI 답변을 받아요.",
+        desc: "살롱봇에게 자유롭게 질문하고 AI 답변을 받아요. 최근 6시간 방 대화 맥락을 반영해요.",
         tier: "골드",
       },
     ],
@@ -171,7 +171,7 @@ const categories: Category[] = [
     title: "메타",
     accent: "amber",
     commands: [
-      { cmd: "유저데이터삭제", args: "[이름]", desc: "특정 유저의 데이터를 삭제해요." },
+      { cmd: "유저데이터삭제", args: "[이름]", desc: "유저 데이터 삭제를 요청해요. (실제 삭제는 운영자가 처리)" },
       { cmd: "명령어목록", desc: "전체 명령어 목록을 보여줘요." },
     ],
   },
