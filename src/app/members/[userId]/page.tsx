@@ -4,25 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import Nav from "@/components/Nav";
+import PageShell from "@/components/PageShell";
+import Notice from "@/components/Notice";
+import StatCard from "@/components/StatCard";
+import { fadeUp, stagger } from "@/lib/motion";
+import { WEEKDAYS } from "@/lib/constants";
 import { MEMBERS_API_URL, fmtAgo, fmtDate, parseNick, type MemberDetail } from "@/lib/members";
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
-  },
-} as const;
-
-const stagger = {
-  visible: { transition: { staggerChildren: 0.06 } },
-};
 
 const fmtCertDate = (ymd: string) => {
   const [, m, d] = ymd.split("-").map(Number);
-  const weekday = ["일", "월", "화", "수", "목", "금", "토"][new Date(`${ymd}T00:00:00+09:00`).getDay()];
+  const weekday = WEEKDAYS[new Date(`${ymd}T00:00:00+09:00`).getDay()];
   return `${m}월 ${d}일 (${weekday})`;
 };
 
@@ -66,38 +57,28 @@ export default function MemberDetailPage() {
     : [];
 
   return (
-    <main className="relative min-h-screen overflow-hidden">
-      <Nav />
-
-      {/* Background orbs */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="animate-float absolute top-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-violet-600/10 blur-[120px]" />
-        <div className="animate-float-delay absolute bottom-[20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-cyan-500/8 blur-[120px]" />
-      </div>
-      <div className="fixed inset-0 noise opacity-50 pointer-events-none" />
-
+    <PageShell
+      orbs={[
+        "top-[-10%] left-[-5%] w-[500px] h-[500px] bg-violet-600/10 blur-[120px]",
+        "bottom-[20%] right-[-10%] w-[400px] h-[400px] bg-cyan-500/8 blur-[120px]",
+      ]}
+    >
       <section className="relative pt-28 pb-32 px-6">
         <div className="max-w-2xl mx-auto">
           <Link href="/members" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-white transition-colors mb-6">
             ‹ 둘러보기
           </Link>
 
-          {status === "loading" && (
-            <div className="glass-card rounded-2xl p-6 text-center text-sm text-slate-500">불러오는 중…</div>
-          )}
+          {status === "loading" && <Notice>불러오는 중…</Notice>}
           {status === "notfound" && (
-            <div className="glass-card rounded-2xl p-8 text-center text-sm text-slate-400">
-              지금 방에 없는 멤버이거나 존재하지 않는 주소예요.
-            </div>
+            <Notice className="p-8 text-slate-400">지금 방에 없는 멤버이거나 존재하지 않는 주소예요.</Notice>
           )}
           {status === "error" && (
-            <div className="glass-card rounded-2xl p-8 text-center text-sm text-slate-400">
-              프로필을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
-            </div>
+            <Notice className="p-8 text-slate-400">프로필을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</Notice>
           )}
 
           {member && p && (
-            <motion.div initial="hidden" animate="visible" variants={stagger}>
+            <motion.div initial="hidden" animate="visible" variants={stagger(0.06)}>
               {/* Header */}
               <motion.div variants={fadeUp} className="glass-card rounded-2xl p-6 sm:p-8 mb-4 border border-violet-400/20">
                 <div className="flex items-start gap-4">
@@ -120,18 +101,19 @@ export default function MemberDetailPage() {
 
               {/* Stats */}
               <motion.div variants={fadeUp} className="grid grid-cols-3 gap-3 mb-4">
-                <div className="glass-card rounded-2xl p-4 sm:p-5">
-                  <p className="text-xs text-slate-500 mb-1">레벨</p>
-                  <p className="text-lg font-semibold text-violet-300 tabular-nums">Lv.{member.level}</p>
-                </div>
-                <div className="glass-card rounded-2xl p-4 sm:p-5">
-                  <p className="text-xs text-slate-500 mb-1">채팅</p>
-                  <p className="text-lg font-semibold text-cyan-300 tabular-nums">{member.chatCount.toLocaleString()}회</p>
-                </div>
-                <div className="glass-card rounded-2xl p-4 sm:p-5">
-                  <p className="text-xs text-slate-500 mb-1">스터디 인증</p>
-                  <p className="text-lg font-semibold text-emerald-300 tabular-nums">{member.studyCertCount}회</p>
-                </div>
+                <StatCard label="레벨" value={`Lv.${member.level}`} tone="text-violet-300" valueClassName="text-lg" />
+                <StatCard
+                  label="채팅"
+                  value={`${member.chatCount.toLocaleString()}회`}
+                  tone="text-cyan-300"
+                  valueClassName="text-lg"
+                />
+                <StatCard
+                  label="스터디 인증"
+                  value={`${member.studyCertCount}회`}
+                  tone="text-emerald-300"
+                  valueClassName="text-lg"
+                />
               </motion.div>
 
               {/* Profile */}
@@ -182,13 +164,6 @@ export default function MemberDetailPage() {
           )}
         </div>
       </section>
-
-      <footer className="relative py-8 px-6 border-t border-white/5">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-600 text-sm">
-          <span className="font-semibold text-slate-500">AI 살롱 광주</span>
-          <span>나 혼자 쓰면 기술, 함께 나누면 가치 🚀</span>
-        </div>
-      </footer>
-    </main>
+    </PageShell>
   );
 }

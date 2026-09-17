@@ -3,11 +3,23 @@
 :root {
   --background: #030712;
   --foreground: #f1f5f9;
+  /* shadcn chart (components/ui/chart.tsx) 가 쓰는 토큰 */
+  --border: rgba(255, 255, 255, 0.1);
+  --muted: rgba(255, 255, 255, 0.05);
+  --muted-foreground: #64748b;
+  /* 차트 계열색 — 어두운 배경 기준 색각이상 대비 검증 완료 */
+  --chart-1: #9085e9;
+  --chart-highlight: #c98500;
+  --chart-male: #3987e5;
+  --chart-female: #d55181;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

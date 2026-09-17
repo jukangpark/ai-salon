@@ -3,7 +3,10 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Marquee from "react-fast-marquee";
-import Nav from "@/components/Nav";
+import PageShell from "@/components/PageShell";
+import GradientLink from "@/components/GradientLink";
+import { fadeUp, stagger } from "@/lib/motion";
+import { INSTAGRAM_URL, KAKAO_OPEN_CHAT_URL } from "@/lib/constants";
 import Claude from "@lobehub/icons/es/Claude";
 import Gemini from "@lobehub/icons/es/Gemini";
 import Grok from "@lobehub/icons/es/Grok";
@@ -35,18 +38,7 @@ import {
   Zap,
 } from "lucide-react";
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
-  },
-} as const;
-
-const stagger = {
-  visible: { transition: { staggerChildren: 0.1 } },
-};
+const container = stagger(0.1);
 
 const aiTools: { name: string; Icon: React.ComponentType<{ size?: number; color?: string }> }[] = [
   { name: "ChatGPT", Icon: OpenAI },
@@ -93,39 +85,67 @@ const topics = [
   { icon: "🔭", label: "앞으로 올 AI 트렌드" },
 ];
 
+type AiTool = (typeof aiTools)[number];
+
+function ToolChip({ tool }: { tool: AiTool }) {
+  return (
+    <div className="mx-3 flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card hover:scale-105 transition-transform duration-200 cursor-default select-none">
+      <tool.Icon size={22} />
+      <span className="text-sm font-semibold whitespace-nowrap text-slate-200">{tool.name}</span>
+    </div>
+  );
+}
+
+// 스크롤해서 보일 때 자식들이 차례로 떠오르는 영역
+function Reveal({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-80px" }}
+      variants={container}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function SectionHeading({
+  eyebrow,
+  eyebrowClassName,
+  title,
+  description,
+  className = "mb-16",
+}: {
+  eyebrow: string;
+  eyebrowClassName: string;
+  title: string;
+  description?: string;
+  className?: string;
+}) {
+  return (
+    <motion.div variants={fadeUp} className={`text-center ${className}`}>
+      <p className={`${eyebrowClassName} font-medium text-sm uppercase tracking-widest mb-3`}>{eyebrow}</p>
+      <h2 className="text-3xl sm:text-4xl font-bold text-slate-100 mb-4">{title}</h2>
+      {description && <p className="text-slate-400 text-base max-w-xl mx-auto">{description}</p>}
+    </motion.div>
+  );
+}
+
 export default function Home() {
   return (
-    <main className="relative min-h-screen overflow-hidden">
-      <Nav />
-
-      {/* Background orbs */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="animate-float absolute top-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-violet-600/10 blur-[120px]" />
-        <div className="animate-float-delay absolute top-[30%] right-[-10%] w-[400px] h-[400px] rounded-full bg-cyan-500/10 blur-[120px]" />
-        <div className="animate-float absolute bottom-[10%] left-[20%] w-[300px] h-[300px] rounded-full bg-pink-500/8 blur-[100px]" />
-      </div>
-
-      {/* Noise overlay */}
-      <div className="fixed inset-0 noise opacity-50 pointer-events-none" />
-
-      {/* Grid pattern */}
-      <div
-        className="fixed inset-0 pointer-events-none opacity-[0.03]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-        }}
-      />
-
+    <PageShell
+      grid
+      orbs={[
+        "top-[-10%] left-[-5%] w-[500px] h-[500px] bg-violet-600/10 blur-[120px]",
+        "top-[30%] right-[-10%] w-[400px] h-[400px] bg-cyan-500/10 blur-[120px]",
+        "bottom-[10%] left-[20%] w-[300px] h-[300px] bg-pink-500/8 blur-[100px]",
+      ]}
+    >
       {/* ─── Hero ─── */}
       <section className="relative flex flex-col items-center justify-center min-h-screen text-center px-6 pt-20 pb-16">
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={stagger}
-          className="max-w-4xl mx-auto"
-        >
+        <motion.div initial="hidden" animate="visible" variants={container} className="max-w-4xl mx-auto">
           {/* Logo */}
           <motion.div variants={fadeUp} className="flex justify-center mb-6">
             <motion.img
@@ -175,19 +195,10 @@ export default function Home() {
             variants={fadeUp}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <a
-              href="https://open.kakao.com/o/gDCIvUsi"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-semibold text-base transition-all duration-300 overflow-hidden"
-              style={{
-                background: "linear-gradient(135deg, #ec4899, #c084fc)",
-              }}
-            >
-              <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300" />
+            <GradientLink href={KAKAO_OPEN_CHAT_URL}>
               <MessageSquare size={18} />
               오픈채팅 참여하기
-            </a>
+            </GradientLink>
             <a
               href="#about"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-semibold text-base glass-card text-slate-300 hover:text-white transition-all duration-300"
@@ -226,29 +237,13 @@ export default function Home() {
           <div className="absolute right-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-l from-[#030712] to-transparent pointer-events-none" />
           <Marquee speed={40} pauseOnHover gradient={false}>
             {aiTools.map((tool) => (
-              <div
-                key={tool.name}
-                className="mx-3 flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card hover:scale-105 transition-transform duration-200 cursor-default select-none"
-              >
-                <tool.Icon size={22} />
-                <span className="text-sm font-semibold whitespace-nowrap text-slate-200">
-                  {tool.name}
-                </span>
-              </div>
+              <ToolChip key={tool.name} tool={tool} />
             ))}
           </Marquee>
           <div className="mt-3">
             <Marquee speed={30} pauseOnHover gradient={false} direction="right">
               {[...aiTools].reverse().map((tool) => (
-                <div
-                  key={tool.name}
-                  className="mx-3 flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card hover:scale-105 transition-transform duration-200 cursor-default select-none"
-                >
-                  <tool.Icon size={22} />
-                  <span className="text-sm font-semibold whitespace-nowrap text-slate-200">
-                    {tool.name}
-                  </span>
-                </div>
+                <ToolChip key={tool.name} tool={tool} />
               ))}
             </Marquee>
           </div>
@@ -258,13 +253,7 @@ export default function Home() {
       {/* ─── About ─── */}
       <section id="about" className="relative py-24 px-6">
         <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={stagger}
-            className="grid md:grid-cols-3 gap-6"
-          >
+          <Reveal className="grid md:grid-cols-3 gap-6">
             {[
               {
                 icon: <Rocket size={24} className="text-pink-400" />,
@@ -305,30 +294,20 @@ export default function Home() {
                 <p className="text-slate-400 text-sm leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
-          </motion.div>
+          </Reveal>
         </div>
       </section>
 
       {/* ─── Welcome ─── */}
       <section className="relative py-24 px-6">
         <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={stagger}
-          >
-            <motion.div variants={fadeUp} className="text-center mb-16">
-              <p className="text-pink-400 font-medium text-sm uppercase tracking-widest mb-3">
-                Welcome
-              </p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-slate-100 mb-4">
-                이런 분들 환영해요 👋
-              </h2>
-              <p className="text-slate-400 text-base max-w-xl mx-auto">
-                AI에 관심 있다면 실력 수준 상관없이 누구나 환영합니다
-              </p>
-            </motion.div>
+          <Reveal>
+            <SectionHeading
+              eyebrow="Welcome"
+              eyebrowClassName="text-pink-400"
+              title="이런 분들 환영해요 👋"
+              description="AI에 관심 있다면 실력 수준 상관없이 누구나 환영합니다"
+            />
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {targetAudience.map((item, i) => (
@@ -342,35 +321,22 @@ export default function Home() {
                 </motion.div>
               ))}
             </div>
-          </motion.div>
+          </Reveal>
         </div>
       </section>
 
       {/* ─── Topics ─── */}
       <section className="relative py-24 px-6">
         <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={stagger}
-          >
-            <motion.div variants={fadeUp} className="text-center mb-16">
-              <p className="text-fuchsia-400 font-medium text-sm uppercase tracking-widest mb-3">
-                Topics
-              </p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-slate-100 mb-4">
-                이런 얘기 나눠요 💡
-              </h2>
-              <p className="text-slate-400 text-base max-w-xl mx-auto">
-                수준 상관없이, 본인이 흥미로웠던 거면 뭐든 OK 👍
-              </p>
-            </motion.div>
+          <Reveal>
+            <SectionHeading
+              eyebrow="Topics"
+              eyebrowClassName="text-fuchsia-400"
+              title="이런 얘기 나눠요 💡"
+              description="수준 상관없이, 본인이 흥미로웠던 거면 뭐든 OK 👍"
+            />
 
-            <motion.div
-              variants={stagger}
-              className="grid grid-cols-2 sm:grid-cols-4 gap-4"
-            >
+            <motion.div variants={container} className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {topics.map((topic) => (
                 <motion.div
                   key={topic.label}
@@ -384,27 +350,20 @@ export default function Home() {
                 </motion.div>
               ))}
             </motion.div>
-          </motion.div>
+          </Reveal>
         </div>
       </section>
 
       {/* ─── Rule ─── */}
       <section className="relative py-24 px-6">
         <div className="max-w-3xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={stagger}
-          >
-            <motion.div variants={fadeUp} className="text-center mb-12">
-              <p className="text-pink-400 font-medium text-sm uppercase tracking-widest mb-3">
-                Rule
-              </p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-slate-100 mb-4">
-                모임 회칙 (딱 하나만요!)
-              </h2>
-            </motion.div>
+          <Reveal>
+            <SectionHeading
+              eyebrow="Rule"
+              eyebrowClassName="text-pink-400"
+              title="모임 회칙 (딱 하나만요!)"
+              className="mb-12"
+            />
 
             <motion.div
               variants={fadeUp}
@@ -429,27 +388,20 @@ export default function Home() {
                 </p>
               </div>
             </motion.div>
-          </motion.div>
+          </Reveal>
         </div>
       </section>
 
       {/* ─── 회비 ─── */}
       <section className="relative py-24 px-6">
         <div className="max-w-3xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={stagger}
-          >
-            <motion.div variants={fadeUp} className="text-center mb-12">
-              <p className="text-cyan-400 font-medium text-sm uppercase tracking-widest mb-3">
-                Membership Fee
-              </p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-slate-100 mb-4">
-                회비 안내
-              </h2>
-            </motion.div>
+          <Reveal>
+            <SectionHeading
+              eyebrow="Membership Fee"
+              eyebrowClassName="text-cyan-400"
+              title="회비 안내"
+              className="mb-12"
+            />
 
             <motion.div
               variants={fadeUp}
@@ -471,7 +423,7 @@ export default function Home() {
                 </div>
               </div>
             </motion.div>
-          </motion.div>
+          </Reveal>
         </div>
       </section>
 
@@ -520,12 +472,7 @@ export default function Home() {
       {/* ─── CTA ─── */}
       <section className="relative py-32 px-6">
         <div className="max-w-3xl mx-auto text-center">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={stagger}
-          >
+          <Reveal>
             <motion.div variants={fadeUp}>
               <div className="inline-flex items-center gap-2 mb-6">
                 <Zap size={20} className="text-pink-400" />
@@ -556,21 +503,12 @@ export default function Home() {
               variants={fadeUp}
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
-              <a
-                href="https://open.kakao.com/o/gDCIvUsi"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative inline-flex items-center justify-center gap-2 px-10 py-4 rounded-2xl font-semibold text-base transition-all duration-300 overflow-hidden"
-                style={{
-                  background: "linear-gradient(135deg, #ec4899, #c084fc)",
-                }}
-              >
-                <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300" />
+              <GradientLink href={KAKAO_OPEN_CHAT_URL} className="px-10">
                 <Coffee size={18} />
                 카카오 오픈채팅 참여
-              </a>
+              </GradientLink>
               <a
-                href="https://www.instagram.com/ai_salon_official/"
+                href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-2xl font-semibold text-base glass-card text-slate-300 hover:text-white transition-all duration-300"
@@ -602,17 +540,9 @@ export default function Home() {
                 </span>
               ))}
             </motion.div>
-          </motion.div>
+          </Reveal>
         </div>
       </section>
-
-      {/* ─── Footer ─── */}
-      <footer className="relative py-8 px-6 border-t border-white/5">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-600 text-sm">
-          <span className="font-semibold text-slate-500">AI 살롱 광주</span>
-          <span>나 혼자 쓰면 기술, 함께 나누면 가치 🚀</span>
-        </div>
-      </footer>
-    </main>
+    </PageShell>
   );
 }

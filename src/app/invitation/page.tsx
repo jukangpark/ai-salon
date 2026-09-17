@@ -2,35 +2,26 @@
 
 import { motion } from "framer-motion";
 import { Calendar, Coffee, MapPin, MessageSquare, Sparkles, Users, Zap } from "lucide-react";
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
-  },
-} as const;
-
-const stagger = {
-  visible: { transition: { staggerChildren: 0.12 } },
-};
+import PageBackground from "@/components/PageBackground";
+import GradientLink from "@/components/GradientLink";
+import { fadeUp, stagger } from "@/lib/motion";
+import { INSTAGRAM_URL, KAKAO_OPEN_CHAT_URL } from "@/lib/constants";
 
 export default function InvitationPage() {
   return (
     <main className="relative min-h-screen overflow-hidden flex flex-col items-center justify-start px-4 py-12">
-      {/* Background orbs */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="animate-float absolute top-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-violet-600/10 blur-[120px]" />
-        <div className="animate-float-delay absolute bottom-[10%] right-[-10%] w-[350px] h-[350px] rounded-full bg-pink-500/10 blur-[120px]" />
-        <div className="animate-float absolute top-[50%] left-[30%] w-[250px] h-[250px] rounded-full bg-cyan-500/8 blur-[100px]" />
-      </div>
-      <div className="fixed inset-0 noise opacity-50 pointer-events-none" />
+      <PageBackground
+        orbs={[
+          "top-[-10%] left-[-10%] w-[400px] h-[400px] bg-violet-600/10 blur-[120px]",
+          "bottom-[10%] right-[-10%] w-[350px] h-[350px] bg-pink-500/10 blur-[120px]",
+          "top-[50%] left-[30%] w-[250px] h-[250px] bg-cyan-500/8 blur-[100px]",
+        ]}
+      />
 
       <motion.div
         initial="hidden"
         animate="visible"
-        variants={stagger}
+        variants={stagger(0.12)}
         className="relative w-full max-w-sm mx-auto flex flex-col gap-4"
       >
         {/* Header label */}
@@ -166,19 +157,12 @@ export default function InvitationPage() {
 
         {/* CTA buttons */}
         <motion.div variants={fadeUp} className="flex flex-col gap-3 pb-4">
-          <a
-            href="https://open.kakao.com/o/gDCIvUsi"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-semibold text-base transition-all duration-300 overflow-hidden"
-            style={{ background: "linear-gradient(135deg, #ec4899, #c084fc)" }}
-          >
-            <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300" />
+          <GradientLink href={KAKAO_OPEN_CHAT_URL} className="w-full px-6">
             <MessageSquare size={18} />
             카카오 오픈채팅 참여하기
-          </a>
+          </GradientLink>
           <a
-            href="https://www.instagram.com/ai_salon_official/"
+            href={INSTAGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-semibold text-sm glass-card text-slate-300 hover:text-white transition-all duration-300"

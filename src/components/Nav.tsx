@@ -3,6 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+const LINKS = [
+  { href: "/", label: "홈", active: "text-white bg-white/8" },
+  { href: "/members", label: "둘러보기", active: "text-violet-300 bg-violet-500/10" },
+  { href: "/commands", label: "명령어", active: "text-cyan-300 bg-cyan-500/10" },
+  { href: "/study", label: "스터디", active: "text-emerald-300 bg-emerald-500/10" },
+  { href: "/stats", label: "통계", active: "text-amber-300 bg-amber-500/10" },
+  { href: "/rules", label: "회칙", active: "text-pink-300 bg-pink-500/10" },
+];
+
 export default function Nav() {
   const pathname = usePathname();
 
@@ -14,66 +23,17 @@ export default function Nav() {
           <span className="hidden sm:inline font-bold text-slate-100 text-sm whitespace-nowrap">AI 살롱 광주</span>
         </Link>
         <div className="flex items-center gap-0.5 sm:gap-1">
-          <Link
-            href="/"
-            className={`px-2 sm:px-3 py-1.5 rounded-lg text-[13px] sm:text-sm font-medium whitespace-nowrap transition-colors ${
-              pathname === "/"
-                ? "text-white bg-white/8"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            홈
-          </Link>
-          <Link
-            href="/members"
-            className={`px-2 sm:px-3 py-1.5 rounded-lg text-[13px] sm:text-sm font-medium whitespace-nowrap transition-colors ${
-              pathname === "/members"
-                ? "text-violet-300 bg-violet-500/10"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            둘러보기
-          </Link>
-          <Link
-            href="/commands"
-            className={`px-2 sm:px-3 py-1.5 rounded-lg text-[13px] sm:text-sm font-medium whitespace-nowrap transition-colors ${
-              pathname === "/commands"
-                ? "text-cyan-300 bg-cyan-500/10"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            명령어
-          </Link>
-          <Link
-            href="/study"
-            className={`px-2 sm:px-3 py-1.5 rounded-lg text-[13px] sm:text-sm font-medium whitespace-nowrap transition-colors ${
-              pathname === "/study"
-                ? "text-emerald-300 bg-emerald-500/10"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            스터디
-          </Link>
-          <Link
-            href="/stats"
-            className={`px-2 sm:px-3 py-1.5 rounded-lg text-[13px] sm:text-sm font-medium whitespace-nowrap transition-colors ${
-              pathname === "/stats"
-                ? "text-amber-300 bg-amber-500/10"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            통계
-          </Link>
-          <Link
-            href="/rules"
-            className={`px-2 sm:px-3 py-1.5 rounded-lg text-[13px] sm:text-sm font-medium whitespace-nowrap transition-colors ${
-              pathname === "/rules"
-                ? "text-pink-300 bg-pink-500/10"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            회칙
-          </Link>
+          {LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`px-2 sm:px-3 py-1.5 rounded-lg text-[13px] sm:text-sm font-medium whitespace-nowrap transition-colors ${
+                pathname === link.href ? link.active : "text-slate-400 hover:text-white"
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
       </div>
     </nav>

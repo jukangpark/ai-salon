@@ -2,20 +2,10 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import Nav from "@/components/Nav";
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
-  },
-} as const;
-
-const stagger = {
-  visible: { transition: { staggerChildren: 0.08 } },
-};
+import PageShell from "@/components/PageShell";
+import PageHeader from "@/components/PageHeader";
+import { fadeUp, stagger } from "@/lib/motion";
+import { accentClasses, type Accent } from "@/lib/accents";
 
 const TRIGGER = "/살롱봇";
 
@@ -27,8 +17,6 @@ type Command = {
   desc: string;
   tier?: Tier;
 };
-
-type Accent = "violet" | "pink" | "cyan" | "fuchsia" | "amber";
 
 type Category = {
   emoji: string;
@@ -177,47 +165,6 @@ const categories: Category[] = [
   },
 ];
 
-const accentClasses: Record<
-  Accent,
-  { badge: string; dot: string; border: string; glow: string; cmd: string }
-> = {
-  violet: {
-    badge: "text-violet-300 bg-violet-500/10 border-violet-500/20",
-    dot: "bg-violet-400",
-    border: "border-violet-500/20",
-    glow: "from-violet-600/5",
-    cmd: "text-violet-200",
-  },
-  pink: {
-    badge: "text-pink-300 bg-pink-500/10 border-pink-500/20",
-    dot: "bg-pink-400",
-    border: "border-pink-500/20",
-    glow: "from-pink-600/5",
-    cmd: "text-pink-200",
-  },
-  cyan: {
-    badge: "text-cyan-300 bg-cyan-500/10 border-cyan-500/20",
-    dot: "bg-cyan-400",
-    border: "border-cyan-500/20",
-    glow: "from-cyan-600/5",
-    cmd: "text-cyan-200",
-  },
-  fuchsia: {
-    badge: "text-fuchsia-300 bg-fuchsia-500/10 border-fuchsia-500/20",
-    dot: "bg-fuchsia-400",
-    border: "border-fuchsia-500/20",
-    glow: "from-fuchsia-600/5",
-    cmd: "text-fuchsia-200",
-  },
-  amber: {
-    badge: "text-amber-300 bg-amber-500/10 border-amber-500/20",
-    dot: "bg-amber-400",
-    border: "border-amber-500/20",
-    glow: "from-amber-600/5",
-    cmd: "text-amber-200",
-  },
-};
-
 const tierClasses: Record<Tier, string> = {
   골드: "text-amber-300 bg-amber-500/10 border-amber-500/20",
   플래티넘: "text-cyan-300 bg-cyan-500/10 border-cyan-500/20",
@@ -323,59 +270,27 @@ export default function CommandsPage() {
   );
 
   return (
-    <main className="relative min-h-screen overflow-hidden">
-      <Nav />
-
-      {/* Background orbs */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="animate-float absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-violet-600/10 blur-[120px]" />
-        <div className="animate-float-delay absolute bottom-[20%] left-[-10%] w-[400px] h-[400px] rounded-full bg-pink-500/8 blur-[120px]" />
-        <div className="animate-float absolute top-[50%] right-[20%] w-[300px] h-[300px] rounded-full bg-cyan-500/6 blur-[100px]" />
-      </div>
-
-      {/* Noise overlay */}
-      <div className="fixed inset-0 noise opacity-50 pointer-events-none" />
-
-      {/* Grid pattern */}
-      <div
-        className="fixed inset-0 pointer-events-none opacity-[0.03]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-        }}
-      />
-
-      {/* Header */}
-      <section className="relative pt-32 pb-16 px-6 text-center">
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={stagger}
-          className="max-w-3xl mx-auto"
-        >
-          <motion.div variants={fadeUp} className="flex justify-center mb-6">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-sm text-slate-400 font-medium">
-              🤖 카카오톡 살롱봇 &nbsp;·&nbsp; 총 {totalCommands}개 명령어
-            </span>
-          </motion.div>
-          <motion.h1
-            variants={fadeUp}
-            className="text-4xl sm:text-5xl font-bold tracking-tight mb-4"
-          >
-            <span className="gradient-text">살롱봇</span>
-            <br />
-            <span className="text-slate-100">명령어 목록</span>
-          </motion.h1>
-          <motion.p variants={fadeUp} className="text-slate-500 text-sm">
+    <PageShell
+      grid
+      orbs={[
+        "top-[-10%] right-[-5%] w-[500px] h-[500px] bg-violet-600/10 blur-[120px]",
+        "bottom-[20%] left-[-10%] w-[400px] h-[400px] bg-pink-500/8 blur-[120px]",
+        "top-[50%] right-[20%] w-[300px] h-[300px] bg-cyan-500/6 blur-[100px]",
+      ]}
+    >
+      <PageHeader
+        className="pb-16"
+        badge={<>🤖 카카오톡 살롱봇 &nbsp;·&nbsp; 총 {totalCommands}개 명령어</>}
+        title="살롱봇"
+        subtitle="명령어 목록"
+        description={
+          <>
             카카오톡 단톡방에서{" "}
-            <code className="px-1.5 py-0.5 rounded bg-white/5 text-slate-300 font-mono text-xs">
-              {TRIGGER}
-            </code>{" "}
+            <code className="px-1.5 py-0.5 rounded bg-white/5 text-slate-300 font-mono text-xs">{TRIGGER}</code>{" "}
             뒤에 명령어를 붙여 입력하세요 ✨
-          </motion.p>
-        </motion.div>
-      </section>
+          </>
+        }
+      />
 
       {/* Table of Contents */}
       <section className="relative px-6 pb-16">
@@ -420,7 +335,7 @@ export default function CommandsPage() {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: "-60px" }}
-                variants={stagger}
+                variants={stagger(0.08)}
                 className="scroll-mt-24"
               >
                 {/* Category header */}
@@ -460,14 +375,6 @@ export default function CommandsPage() {
           })}
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="relative py-8 px-6 border-t border-white/5">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-600 text-sm">
-          <span className="font-semibold text-slate-500">AI 살롱 광주</span>
-          <span>나 혼자 쓰면 기술, 함께 나누면 가치 🚀</span>
-        </div>
-      </footer>
-    </main>
+    </PageShell>
   );
 }

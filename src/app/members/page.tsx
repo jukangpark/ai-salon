@@ -3,21 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import Nav from "@/components/Nav";
+import PageShell from "@/components/PageShell";
+import PageHeader from "@/components/PageHeader";
+import Notice from "@/components/Notice";
+import StatCard from "@/components/StatCard";
+import { fadeUp, stagger } from "@/lib/motion";
 import { MEMBERS_API_URL, fmtAgo, parseNick, type Member } from "@/lib/members";
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
-  },
-} as const;
-
-const stagger = {
-  visible: { transition: { staggerChildren: 0.05 } },
-};
 
 type SortKey = "chat" | "study" | "recent";
 
@@ -66,62 +57,31 @@ export default function MembersPage() {
   const totalStudy = members?.reduce((s, m) => s + m.studyCertCount, 0) ?? 0;
 
   return (
-    <main className="relative min-h-screen overflow-hidden">
-      <Nav />
-
-      {/* Background orbs */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="animate-float absolute top-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-violet-600/10 blur-[120px]" />
-        <div className="animate-float-delay absolute bottom-[20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-cyan-500/8 blur-[120px]" />
-      </div>
-
-      {/* Noise overlay */}
-      <div className="fixed inset-0 noise opacity-50 pointer-events-none" />
-
-      {/* Header */}
-      <section className="relative pt-32 pb-10 px-6 text-center">
-        <motion.div initial="hidden" animate="visible" variants={stagger} className="max-w-3xl mx-auto">
-          <motion.div variants={fadeUp} className="flex justify-center mb-6">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-sm text-slate-400 font-medium">
-              👥 현재 방에 있는 멤버 {members ? `${members.length}명` : ""}
-            </span>
-          </motion.div>
-          <motion.h1 variants={fadeUp} className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-            <span className="gradient-text">둘러보기</span>
-          </motion.h1>
-          <motion.p variants={fadeUp} className="text-slate-500 text-sm">
-            채팅 수, 레벨, 스터디 인증까지 한눈에. 이름을 누르면 프로필로 이동해요.
-          </motion.p>
-        </motion.div>
-      </section>
+    <PageShell
+      orbs={[
+        "top-[-10%] left-[-5%] w-[500px] h-[500px] bg-violet-600/10 blur-[120px]",
+        "bottom-[20%] right-[-10%] w-[400px] h-[400px] bg-cyan-500/8 blur-[120px]",
+      ]}
+    >
+      <PageHeader
+        className="pb-10"
+        badge={`👥 현재 방에 있는 멤버 ${members ? `${members.length}명` : ""}`}
+        title="둘러보기"
+        description="채팅 수, 레벨, 스터디 인증까지 한눈에. 이름을 누르면 프로필로 이동해요."
+      />
 
       <section className="relative px-6 pb-32">
         <div className="max-w-3xl mx-auto">
-          {error && (
-            <div className="glass-card rounded-2xl p-6 text-center text-sm text-slate-400">
-              멤버 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
-            </div>
-          )}
-          {!members && !error && (
-            <div className="glass-card rounded-2xl p-6 text-center text-sm text-slate-500">불러오는 중…</div>
-          )}
+          {error && <Notice className="text-slate-400">멤버 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</Notice>}
+          {!members && !error && <Notice>불러오는 중…</Notice>}
 
           {members && (
-            <motion.div initial="hidden" animate="visible" variants={stagger}>
+            <motion.div initial="hidden" animate="visible" variants={stagger(0.05)}>
               {/* Summary */}
               <motion.div variants={fadeUp} className="grid grid-cols-3 gap-3 mb-6">
-                <div className="glass-card rounded-2xl p-4 sm:p-5">
-                  <p className="text-xs text-slate-500 mb-1">멤버</p>
-                  <p className="text-sm font-semibold text-slate-200 tabular-nums">{members.length}명</p>
-                </div>
-                <div className="glass-card rounded-2xl p-4 sm:p-5">
-                  <p className="text-xs text-slate-500 mb-1">누적 채팅</p>
-                  <p className="text-sm font-semibold text-cyan-300 tabular-nums">{totalChat.toLocaleString()}회</p>
-                </div>
-                <div className="glass-card rounded-2xl p-4 sm:p-5">
-                  <p className="text-xs text-slate-500 mb-1">누적 스터디 인증</p>
-                  <p className="text-sm font-semibold text-emerald-300 tabular-nums">{totalStudy}회</p>
-                </div>
+                <StatCard label="멤버" value={`${members.length}명`} />
+                <StatCard label="누적 채팅" value={`${totalChat.toLocaleString()}회`} tone="text-cyan-300" />
+                <StatCard label="누적 스터디 인증" value={`${totalStudy}회`} tone="text-emerald-300" />
               </motion.div>
 
               {/* Controls */}
@@ -150,9 +110,7 @@ export default function MembersPage() {
 
               {/* List */}
               {list.length === 0 ? (
-                <div className="glass-card rounded-2xl p-8 text-center text-sm text-slate-500">
-                  “{query}” 검색 결과가 없어요.
-                </div>
+                <Notice className="p-8">“{query}” 검색 결과가 없어요.</Notice>
               ) : (
                 <div className="space-y-2">
                   {list.map((m, i) => {
@@ -207,14 +165,6 @@ export default function MembersPage() {
           )}
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="relative py-8 px-6 border-t border-white/5">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-600 text-sm">
-          <span className="font-semibold text-slate-500">AI 살롱 광주</span>
-          <span>나 혼자 쓰면 기술, 함께 나누면 가치 🚀</span>
-        </div>
-      </footer>
-    </main>
+    </PageShell>
   );
 }
