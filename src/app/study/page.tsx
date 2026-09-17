@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import Nav from "@/components/Nav";
+import { MEMBERS_API_URL, type Member } from "@/lib/members";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -280,6 +282,20 @@ export default function StudyPage() {
   const [data, setData] = useState<StudyCert | null>(null);
   const [remaining, setRemaining] = useState(0);
   const [error, setError] = useState(false);
+  // 스터디 인증 API엔 userId가 없어서 멤버 API의 닉네임으로 매칭한다. 못 찾으면 링크 없이 그린다.
+  const [userIds, setUserIds] = useState<Map<string, string>>(new Map());
+
+  useEffect(() => {
+    fetch(MEMBERS_API_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error(String(res.status));
+        return res.json();
+      })
+      .then((json: { members: Member[] }) =>
+        setUserIds(new Map(json.members.map((m) => [m.name, m.userId]))),
+      )
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetch(API_URL)
@@ -390,14 +406,12 @@ export default function StudyPage() {
                 {data.members.map((m, i) => {
                   const done = m.count >= data.required;
                   const pct = Math.min(100, (m.count / data.required) * 100);
-                  return (
-                    <motion.div
-                      key={`${m.name}-${i}`}
-                      variants={fadeUp}
-                      className={`glass-card rounded-2xl px-5 py-4 border ${
-                        done ? "border-emerald-500/25" : "border-white/5"
-                      }`}
-                    >
+                  const userId = userIds.get(m.name);
+                  const cardClass = `block glass-card rounded-2xl px-5 py-4 border ${
+                    done ? "border-emerald-500/25" : "border-white/5"
+                  }`;
+                  const body = (
+                    <>
                       <div className="flex items-center gap-3 mb-2">
                         <span className="w-6 text-xs text-slate-500 tabular-nums">
                           {i + 1}
@@ -425,6 +439,20 @@ export default function StudyPage() {
                           style={{ width: `${pct}%` }}
                         />
                       </div>
+                    </>
+                  );
+                  return (
+                    <motion.div key={`${m.name}-${i}`} variants={fadeUp}>
+                      {userId ? (
+                        <Link
+                          href={`/members/${encodeURIComponent(userId)}`}
+                          className={`${cardClass} hover:border-emerald-400/40 transition-colors`}
+                        >
+                          {body}
+                        </Link>
+                      ) : (
+                        <div className={cardClass}>{body}</div>
+                      )}
                     </motion.div>
                   );
                 })}
