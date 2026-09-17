@@ -10,7 +10,7 @@ import StatCard from "@/components/StatCard";
 import { fadeUp, stagger } from "@/lib/motion";
 import { MEDALS, WEEKDAYS } from "@/lib/constants";
 import { parseNick } from "@/lib/members";
-import { ColumnChart, HBarChart, TrendChart } from "./charts";
+import { ColumnChart, DonutChart, HBarChart, TrendChart } from "./charts";
 
 // 살롱봇 서버(no-more-chatbot-server)의 공개 읽기 전용 API. 재실 멤버·봇 제외 기준, 시각은 unix 초.
 const STATS_API_URL = "https://no-more.app/api/aisalon/stats";
@@ -70,6 +70,36 @@ const fmtMonth = (ym: string) => {
   const [y, m] = ym.split("-");
   return `${y.slice(2)}.${m}`;
 };
+// 광주 5개 구. 닉네임에 "광산"처럼 '구'를 빼고 적은 경우를 합친다. 색은 구마다 고정.
+const DISTRICTS = ["북구", "서구", "광산구", "남구", "동구"];
+// Tailwind 가 안 쓰인 CSS 변수를 지우므로 변수 이름을 조합하지 말고 그대로 적는다.
+const DISTRICT_COLORS = [
+  "var(--chart-region-1)",
+  "var(--chart-region-2)",
+  "var(--chart-region-3)",
+  "var(--chart-region-4)",
+  "var(--chart-region-5)",
+];
+const normalizeRegion = (region: string) => (DISTRICTS.includes(`${region}구`) ? `${region}구` : region);
+const mergeRegions = (regions: Stats["regions"]) => {
+  const byName = new Map<string, Stats["regions"][number]>();
+  for (const r of regions) {
+    const name = normalizeRegion(r.region);
+    const prev = byName.get(name);
+    byName.set(
+      name,
+      prev
+        ? { region: name, 남: prev.남 + r.남, 여: prev.여 + r.여, total: prev.total + r.total }
+        : { ...r, region: name },
+    );
+  }
+  return [...byName.values()].sort((a, b) => b.total - a.total);
+};
+const regionColor = (region: string) => {
+  const i = DISTRICTS.indexOf(region);
+  return DISTRICT_COLORS[i] ?? "var(--chart-other)";
+};
+
 const fmtPeriod = (sec: number) =>
   new Date(sec * 1000).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul", month: "numeric", day: "numeric" });
 
@@ -102,6 +132,7 @@ export default function StatsPage() {
 
   const maxChat = stats ? Math.max(1, ...stats.chat.top.map((c) => c.count)) : 1;
   const recentJoins = stats ? stats.joins.slice(-12) : [];
+  const regions = stats ? mergeRegions(stats.regions) : [];
   const act = stats?.chat.activity;
   const rankMonths = act ? act.monthly.months.map((m) => m.month).filter((m) => act.monthly.ranking[m]?.length) : [];
   const shownRankMonth = rankMonth ?? rankMonths[rankMonths.length - 1] ?? null;
@@ -174,10 +205,22 @@ export default function StatsPage() {
                 <Card title="📍 지역" sub="닉네임 기준">
                   <HBarChart
                     split
-                    data={stats.regions.slice(0, 8).map((r) => ({ label: r.region, 남: r.남, 여: r.여, total: r.total }))}
+                    data={regions.slice(0, 8).map((r) => ({ label: r.region, 남: r.남, 여: r.여, total: r.total }))}
                   />
                 </Card>
               </div>
+
+              {/* 지역 비율 */}
+              <Card title="🗺️ 지역 비율" sub={`닉네임 기준 ${regions.reduce((s, r) => s + r.total, 0)}명`}>
+                <DonutChart
+                  data={regions.map((r) => ({
+                    key: r.region,
+                    label: r.region,
+                    value: r.total,
+                    color: regionColor(r.region),
+                  }))}
+                />
+              </Card>
 
               {/* 계급 분포 */}
               <Card title="🏅 계급 분포" sub="채팅 수로 오르는 레벨의 티어">

@@ -12,6 +12,13 @@
   --chart-highlight: #c98500;
   --chart-male: #3987e5;
   --chart-female: #d55181;
+  /* 지역 도넛 — 구마다 고정색 (조각 옆에 이름을 같이 적는다) */
+  --chart-region-1: #3987e5;
+  --chart-region-2: #199e70;
+  --chart-region-3: #c98500;
+  --chart-region-4: #d55181;
+  --chart-region-5: #9085e9;
+  --chart-other: #64748b;
 }
 
 @theme inline {

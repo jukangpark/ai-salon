@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import { Area, AreaChart, Bar, BarChart, Cell, LabelList, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, Bar, BarChart, Cell, Label, LabelList, Pie, PieChart, XAxis, YAxis } from "recharts";
 import {
   ChartContainer,
   ChartLegend,
@@ -33,7 +33,7 @@ const tooltipRow = (unit: string) =>
   function TooltipRow(value: any, name: any, item: any) {
     return (
       <div className="flex w-full items-center gap-2">
-        <span className="h-0.5 w-3 shrink-0 rounded-full" style={{ background: item.color }} />
+        <span className="h-0.5 w-3 shrink-0 rounded-full" style={{ background: item.color ?? item.payload?.fill }} />
         <span className="text-muted-foreground">{name}</span>
         <span className="ml-auto font-mono font-medium tabular-nums text-foreground">
           {Number(value).toLocaleString()}
@@ -146,22 +146,15 @@ export type SplitRow = { label: string; 남: number; 여: number; total: number 
 
 const ROW_HEIGHT = 26;
 
-// 가로 막대. rows 가 SplitRow 면 남/여 누적, ChartRow 면 단일 값. 끝에 합계 라벨.
+// 가로 막대. rows 가 SplitRow 면 남/여 누적, ChartRow 면 단일 값.
+// 합계는 오른쪽 축에 적는다 (막대 끝 라벨은 폭 0인 조각에서 안 그려져서 0명·여 0명 줄이 비었다).
 export function HBarChart(
   props:
     | { split: true; data: SplitRow[]; unit?: string }
     | { split?: false; data: ChartRow[]; name: string; unit?: string },
 ) {
   const unit = props.unit ?? "명";
-  const label = (
-    <LabelList
-      dataKey={props.split ? "total" : "value"}
-      position="right"
-      fontSize={11}
-      className="fill-slate-300 tabular-nums"
-      formatter={(v) => `${v}${unit}`}
-    />
-  );
+  const totals = props.split ? props.data.map((d) => d.total) : props.data.map((d) => d.value);
   const config: ChartConfig = props.split
     ? { 남: { label: "남", color: "var(--chart-male)" }, 여: { label: "여", color: "var(--chart-female)" } }
     : { value: { label: props.name, color: "var(--chart-1)" } };
@@ -169,24 +162,80 @@ export function HBarChart(
 
   return (
     <ChartContainer config={config} className="aspect-auto w-full" style={{ height }}>
-      <BarChart data={props.data as object[]} layout="vertical" margin={{ top: 0, left: 0, right: 44, bottom: 0 }} barCategoryGap={6}>
+      <BarChart data={props.data as object[]} layout="vertical" margin={{ top: 0, left: 0, right: 0, bottom: 0 }} barCategoryGap={6}>
         <XAxis type="number" hide />
         <YAxis type="category" dataKey="label" width={80} tickLine={false} axisLine={false} fontSize={11} />
+        <YAxis
+          yAxisId="total"
+          orientation="right"
+          type="category"
+          dataKey="label"
+          width={44}
+          tickLine={false}
+          axisLine={false}
+          fontSize={11}
+          tick={{ className: "fill-slate-300 tabular-nums" }}
+          tickFormatter={(_, i) => `${totals[i]}${unit}`}
+        />
         <ChartTooltip cursor={false} content={<ChartTooltipContent formatter={tooltipRow(unit)} />} />
         {props.split ? (
           <>
             <Bar dataKey="남" name="남" stackId="gender" fill="var(--color-남)" />
-            <Bar dataKey="여" name="여" stackId="gender" fill="var(--color-여)" radius={[0, 4, 4, 0]}>
-              {label}
-            </Bar>
+            <Bar dataKey="여" name="여" stackId="gender" fill="var(--color-여)" radius={[0, 4, 4, 0]} />
             <ChartLegend content={<ChartLegendContent />} />
           </>
         ) : (
-          <Bar dataKey="value" name={props.name} fill="var(--color-value)" radius={[0, 4, 4, 0]}>
-            {label}
-          </Bar>
+          <Bar dataKey="value" name={props.name} fill="var(--color-value)" radius={[0, 4, 4, 0]} />
         )}
       </BarChart>
+    </ChartContainer>
+  );
+}
+
+export type SliceRow = { key: string; label: string; value: number; color: string };
+
+// 도넛. 조각마다 이름·비율을 바깥에 직접 적어서 색이 비슷해도 구분된다. 가운데는 합계.
+export function DonutChart({ data, unit = "명", className = "h-64" }: { data: SliceRow[]; unit?: string; className?: string }) {
+  const total = data.reduce((sum, d) => sum + d.value, 0);
+  const config: ChartConfig = Object.fromEntries(data.map((d) => [d.label, { label: d.label, color: d.color }]));
+  return (
+    <ChartContainer config={config} className={cn("aspect-auto w-full", className)}>
+      <PieChart margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
+        <ChartTooltip content={<ChartTooltipContent hideLabel formatter={tooltipRow(unit)} />} />
+        <Pie
+          data={data}
+          dataKey="value"
+          nameKey="label"
+          innerRadius="45%"
+          outerRadius="68%"
+          paddingAngle={2}
+          stroke="none"
+          labelLine={{ stroke: "var(--border)" }}
+          label={({ x, y, textAnchor, name, percent }) => (
+            <text x={x} y={y} textAnchor={textAnchor} dominantBaseline="central" fontSize={11} className="fill-slate-300">
+              {name} {Math.round((percent ?? 0) * 100)}%
+            </text>
+          )}
+        >
+          {data.map((d) => (
+            <Cell key={d.key} fill={d.color} />
+          ))}
+          <Label
+            content={({ viewBox }) =>
+              viewBox && "cx" in viewBox ? (
+                <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
+                  <tspan x={viewBox.cx} dy={-4} className="fill-slate-100 text-lg font-semibold tabular-nums">
+                    {total}
+                  </tspan>
+                  <tspan x={viewBox.cx} dy={18} className="fill-slate-500 text-[11px]">
+                    {unit}
+                  </tspan>
+                </text>
+              ) : null
+            }
+          />
+        </Pie>
+      </PieChart>
     </ChartContainer>
   );
 }
