@@ -19,6 +19,177 @@ const stagger = {
 
 // 살롱봇 서버(no-more-chatbot-server)의 공개 읽기 전용 API. 시각은 unix 초.
 const API_URL = "https://no-more.app/api/aisalon/study-cert";
+const CALENDAR_URL = `${API_URL}/calendar`;
+
+type StudyCalendar = {
+  month: string; // YYYY-MM (KST)
+  firstMonth: string;
+  currentMonth: string;
+  days: { date: string; count: number; names: string[] }[];
+};
+
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+
+const shiftMonth = (month: string, diff: number) => {
+  const [y, m] = month.split("-").map(Number);
+  const d = new Date(Date.UTC(y, m - 1 + diff, 1));
+  return d.toISOString().slice(0, 7);
+};
+
+// 그날 인증한 인원 수 → 히트맵 칸 색
+const heatClass = (count: number) => {
+  if (count === 0) return "bg-white/[0.03] text-slate-600";
+  if (count === 1) return "bg-emerald-500/20 text-emerald-200";
+  if (count === 2) return "bg-emerald-500/40 text-emerald-100";
+  if (count === 3) return "bg-emerald-500/60 text-white";
+  return "bg-emerald-400/85 text-slate-950";
+};
+
+function StudyHeatmap() {
+  // null = 이번 달 (서버가 KST 기준으로 정한다)
+  const [month, setMonth] = useState<string | null>(null);
+  const [cal, setCal] = useState<StudyCalendar | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    fetch(month ? `${CALENDAR_URL}?month=${month}` : CALENDAR_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error(String(res.status));
+        return res.json();
+      })
+      .then((json: StudyCalendar) => {
+        setCal(json);
+        setError(false);
+      })
+      .catch(() => setError(true));
+  }, [month]);
+
+  const go = (diff: number) => {
+    if (!cal) return;
+    setSelected(null);
+    setMonth(shiftMonth(cal.month, diff));
+  };
+
+  if (error && !cal) {
+    return (
+      <div className="glass-card rounded-2xl p-6 mb-8 text-center text-sm text-slate-400">
+        달력을 불러오지 못했어요.
+      </div>
+    );
+  }
+  if (!cal) {
+    return (
+      <div className="glass-card rounded-2xl p-6 mb-8 text-center text-sm text-slate-500">
+        달력 불러오는 중…
+      </div>
+    );
+  }
+
+  const [y, m] = cal.month.split("-").map(Number);
+  const firstWeekday = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();
+  const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const byDate = new Map(cal.days.map((d) => [d.date, d]));
+  const total = cal.days.reduce((sum, d) => sum + d.count, 0);
+  const selectedDay = selected ? byDate.get(selected) : undefined;
+  const canPrev = cal.month > cal.firstMonth;
+  const canNext = cal.month < cal.currentMonth;
+
+  const cells: (number | null)[] = [
+    ...Array<null>(firstWeekday).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
+
+  return (
+    <div className="glass-card rounded-2xl p-5 sm:p-6 mb-8">
+      <div className="flex items-center justify-between mb-4">
+        <button
+          type="button"
+          onClick={() => go(-1)}
+          disabled={!canPrev}
+          aria-label="이전 달"
+          className="w-8 h-8 rounded-lg border border-white/10 bg-white/5 text-slate-300 transition-colors hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5"
+        >
+          ‹
+        </button>
+        <div className="text-center">
+          <p className="text-base font-semibold text-slate-100">
+            {y}년 {m}월
+          </p>
+          <p className="text-xs text-slate-500">한 달 인증 {total}회</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => go(1)}
+          disabled={!canNext}
+          aria-label="다음 달"
+          className="w-8 h-8 rounded-lg border border-white/10 bg-white/5 text-slate-300 transition-colors hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5"
+        >
+          ›
+        </button>
+      </div>
+
+      <div className="grid grid-cols-7 gap-1.5 mb-1.5">
+        {WEEKDAYS.map((w) => (
+          <span key={w} className="text-center text-[11px] text-slate-500">
+            {w}
+          </span>
+        ))}
+      </div>
+      <div className="grid grid-cols-7 gap-1.5">
+        {cells.map((day, i) => {
+          if (day === null) return <span key={`blank-${i}`} />;
+          const date = `${cal.month}-${String(day).padStart(2, "0")}`;
+          const count = byDate.get(date)?.count ?? 0;
+          return (
+            <button
+              key={date}
+              type="button"
+              onClick={() => setSelected(selected === date ? null : date)}
+              title={`${m}월 ${day}일 · ${count}명 인증`}
+              className={`aspect-square rounded-lg text-xs font-medium tabular-nums transition-transform hover:scale-105 ${heatClass(count)} ${
+                selected === date ? "ring-2 ring-cyan-300" : ""
+              }`}
+            >
+              {day}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center justify-end gap-1.5 mt-3 text-[10px] text-slate-500">
+        <span>적음</span>
+        {[0, 1, 2, 3, 4].map((c) => (
+          <span key={c} className={`w-3 h-3 rounded ${heatClass(c)}`} />
+        ))}
+        <span>많음</span>
+      </div>
+
+      {selected && (
+        <div className="mt-4 pt-4 border-t border-white/5">
+          <p className="text-xs text-slate-500 mb-2">
+            {Number(selected.slice(5, 7))}월 {Number(selected.slice(8))}일 인증{" "}
+            {selectedDay?.count ?? 0}명
+          </p>
+          {selectedDay ? (
+            <div className="flex flex-wrap gap-1.5">
+              {selectedDay.names.map((name, i) => (
+                <span
+                  key={`${name}-${i}`}
+                  className="px-2.5 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-xs text-emerald-200"
+                >
+                  {name}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-slate-600">이날은 인증이 없어요.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 type StudyCert = {
   periodStart: number;
@@ -110,6 +281,8 @@ export default function StudyPage() {
 
       <section className="relative px-6 pb-32">
         <div className="max-w-3xl mx-auto">
+          <StudyHeatmap />
+
           {error && (
             <div className="glass-card rounded-2xl p-6 text-center text-sm text-slate-400">
               인증 현황을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
