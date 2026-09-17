@@ -6,9 +6,12 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# ── 정적 서빙 (nginx) ──
-FROM nginx:alpine AS runtime
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/out /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# ── standalone 런타임 (node) ──
+FROM node:22-slim AS runtime
+WORKDIR /app
+ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=3000
+COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/.next/static ./.next/static
+COPY --from=build /app/public ./public
+EXPOSE 3000
+CMD ["node", "server.js"]

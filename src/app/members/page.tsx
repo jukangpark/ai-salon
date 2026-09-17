@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import Nav from "@/components/Nav";
+import { MEMBERS_API_URL, fmtAgo, parseNick, type Member } from "@/lib/members";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -17,24 +19,6 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.05 } },
 };
 
-// 살롱봇 서버(no-more-chatbot-server)의 공개 읽기 전용 API. 시각은 unix 초.
-const API_URL = "https://no-more.app/api/aisalon/members";
-
-type Member = {
-  name: string;
-  chatCount: number;
-  level: number;
-  tier: string;
-  tierEmoji: string;
-  studyCertCount: number;
-  job: string | null;
-  mbti: string | null;
-  hobby: string | null;
-  introduction: string | null;
-  firstSeenAt: number | null;
-  lastSeenAt: number | null;
-};
-
 type SortKey = "chat" | "study" | "recent";
 
 const SORTS: { key: SortKey; label: string }[] = [
@@ -43,47 +27,14 @@ const SORTS: { key: SortKey; label: string }[] = [
   { key: "recent", label: "🕒 최근 활동순" },
 ];
 
-// 살롱 닉 "이름/나이/지역/성별" 파싱. 서버 util.parseNick 과 같은 규칙(앞뒤 장식 제거, '/' 옆 공백 허용).
-const parseNick = (raw: string) => {
-  const cleaned = raw
-    .trim()
-    .replace(/^[^가-힣a-zA-Z0-9]+/, "")
-    .replace(/[^가-힣a-zA-Z0-9]+$/, "")
-    .replace(/\s+/g, " ")
-    .replace(/\s*\/\s*/g, "/")
-    .trim();
-  const m = /^([^/]+)\/(\d+)\/([^/]+)\/(남|여)$/.exec(cleaned);
-  if (!m) return { name: raw.split("/")[0].trim() || raw, age: null, region: null, gender: null };
-  return { name: m[1].trim(), age: m[2], region: m[3].trim(), gender: m[4] };
-};
-
-const fmtAgo = (sec: number | null) => {
-  if (!sec) return null;
-  const diff = Math.max(0, Math.floor(Date.now() / 1000) - sec);
-  if (diff < 3600) return `${Math.max(1, Math.floor(diff / 60))}분 전`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
-  return `${Math.floor(diff / 86400)}일 전`;
-};
-
-const fmtDate = (sec: number | null) =>
-  sec
-    ? new Date(sec * 1000).toLocaleDateString("ko-KR", {
-        timeZone: "Asia/Seoul",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : null;
-
 export default function MembersPage() {
   const [members, setMembers] = useState<Member[] | null>(null);
   const [error, setError] = useState(false);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("chat");
-  const [open, setOpen] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(API_URL)
+    fetch(MEMBERS_API_URL)
       .then((res) => {
         if (!res.ok) throw new Error(String(res.status));
         return res.json();
@@ -139,7 +90,7 @@ export default function MembersPage() {
             <span className="gradient-text">둘러보기</span>
           </motion.h1>
           <motion.p variants={fadeUp} className="text-slate-500 text-sm">
-            채팅 수, 레벨, 스터디 인증까지 한눈에. 이름을 누르면 프로필이 펼쳐져요.
+            채팅 수, 레벨, 스터디 인증까지 한눈에. 이름을 누르면 프로필로 이동해요.
           </motion.p>
         </motion.div>
       </section>
@@ -212,26 +163,11 @@ export default function MembersPage() {
                       p.gender === "남" ? "남자" : p.gender === "여" ? "여자" : null,
                       m.mbti,
                     ].filter(Boolean) as string[];
-                    const isOpen = open === m.name;
-                    const details = [
-                      m.job ? ["직업", m.job] : null,
-                      m.hobby ? ["취미", m.hobby] : null,
-                      m.introduction ? ["소개", m.introduction] : null,
-                      m.firstSeenAt ? ["첫 활동", fmtDate(m.firstSeenAt)] : null,
-                      m.lastSeenAt ? ["마지막 활동", fmtDate(m.lastSeenAt)] : null,
-                    ].filter(Boolean) as [string, string][];
                     return (
-                      <motion.div
-                        key={`${m.name}-${i}`}
-                        variants={fadeUp}
-                        className={`glass-card rounded-2xl border transition-colors ${
-                          isOpen ? "border-violet-400/30" : "border-white/5"
-                        }`}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => setOpen(isOpen ? null : m.name)}
-                          className="w-full text-left px-4 sm:px-5 py-3.5 flex items-center gap-3"
+                      <motion.div key={m.userId} variants={fadeUp}>
+                        <Link
+                          href={`/members/${encodeURIComponent(m.userId)}`}
+                          className="glass-card rounded-2xl border border-white/5 hover:border-violet-400/30 transition-colors px-4 sm:px-5 py-3.5 flex items-center gap-3"
                         >
                           <span className="w-6 text-xs text-slate-500 tabular-nums">{i + 1}</span>
                           <span className="text-lg" title={`${m.tier} · Lv.${m.level}`}>
@@ -260,26 +196,8 @@ export default function MembersPage() {
                           <span className="hidden sm:block w-16 text-right text-[11px] text-slate-500 shrink-0">
                             {fmtAgo(m.lastSeenAt)}
                           </span>
-                        </button>
-
-                        {isOpen && (
-                          <div className="px-4 sm:px-5 pb-4 pt-1 ml-9 border-t border-white/5 text-xs">
-                            <p className="text-slate-400 mb-2 mt-3">
-                              {m.tierEmoji} {m.tier} · Lv.{m.level} · 채팅 {m.chatCount.toLocaleString()}회 · 스터디 인증{" "}
-                              {m.studyCertCount}회
-                            </p>
-                            {details.length > 0 && (
-                              <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
-                                {details.map(([k, v]) => (
-                                  <div key={k} className="contents">
-                                    <dt className="text-slate-500">{k}</dt>
-                                    <dd className="text-slate-300 break-words">{v}</dd>
-                                  </div>
-                                ))}
-                              </dl>
-                            )}
-                          </div>
-                        )}
+                          <span className="text-slate-600">›</span>
+                        </Link>
                       </motion.div>
                     );
                   })}
