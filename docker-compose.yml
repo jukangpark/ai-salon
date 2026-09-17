@@ -1,0 +1,5 @@
+services:
+  web:
+    build: .
+    image: ai-salon-web
+    container_name: ai-salon-web

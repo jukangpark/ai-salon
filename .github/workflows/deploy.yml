@@ -1,0 +1,63 @@
+name: deploy
+
+# main에 push되면 홈서버(self-hosted 러너)가 코드를 ~/ai-salon으로 동기화하고
+# docker compose로 재빌드/재기동한다.
+# 러너: homeserver-ai-salon (repo-scoped, label: ai-salon)
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-ai-salon
+  cancel-in-progress: false
+
+env:
+  DEPLOY_DIR: /home/jukang/ai-salon
+  PROJECT: ai-salon
+  PORT: "4009"
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, ai-salon]
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Sync repo into deploy directory
+        run: |
+          set -euo pipefail
+          mkdir -p "$DEPLOY_DIR"
+          rsync -a --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='.next' \
+            --exclude='out' \
+            ./ "$DEPLOY_DIR/"
+
+      - name: Build & up (prod compose override)
+        working-directory: ${{ env.DEPLOY_DIR }}
+        run: |
+          set -euo pipefail
+          docker compose -p "$PROJECT" -f docker-compose.yml -f docker-compose.prod.yml build
+          docker compose -p "$PROJECT" -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+      - name: Health check (:4009)
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 15); do
+            code="$(curl -fsS -o /dev/null -w '%{http_code}' "http://127.0.0.1:${PORT}/" || true)"
+            if [ "$code" = "200" ]; then echo "web OK ($code)"; exit 0; fi
+            echo "attempt $i: HTTP $code — 대기..."; sleep 2
+          done
+          echo "::error::web 헬스체크 실패(:${PORT})"
+          docker compose -p "$PROJECT" logs --tail=80 web || true
+          exit 1
+
+      - name: Prune dangling images
+        if: success()
+        run: docker image prune -f

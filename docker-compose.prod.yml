@@ -1,0 +1,8 @@
+# 홈서버 프로덕션 오버라이드
+# 사용: docker compose -p ai-salon -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+# 호스트 nginx(터널 경유)만 접근하도록 127.0.0.1:4009 로만 노출한다(외부 직접 노출 금지).
+services:
+  web:
+    ports:
+      - "127.0.0.1:4009:80"
+    restart: unless-stopped
