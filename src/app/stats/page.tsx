@@ -40,6 +40,18 @@ type Stats = {
     participants: number;
     top: { name: string; count: number }[];
   };
+  moim?: MoimStats; // 서버 배포 전 응답엔 없을 수 있다
+};
+
+// 정모(벙) — 벙별 인원·신규는 나간 분도 포함, TOP 은 재실 멤버만. date 는 KST YYYY-MM-DD.
+type MoimStats = {
+  total: number;
+  attendances: number;
+  avgAttendees: number;
+  participants: number;
+  list: { postId: string; date: string | null; title: string | null; location: string | null; count: number; newcomers: number }[];
+  top: { userId: string; name: string; count: number }[];
+  locations: { location: string; count: number }[];
 };
 
 type MonthlyRankRow = { month: string; userId: string; name: string; count: number; present: boolean };
@@ -136,6 +148,8 @@ export default function StatsPage() {
   const act = stats?.chat.activity;
   const rankMonths = act ? act.monthly.months.map((m) => m.month).filter((m) => act.monthly.ranking[m]?.length) : [];
   const shownRankMonth = rankMonth ?? rankMonths[rankMonths.length - 1] ?? null;
+  const moim = stats?.moim;
+  const maxMoim = moim ? Math.max(1, ...moim.top.map((t) => t.count)) : 1;
 
   return (
     <PageShell
@@ -229,6 +243,88 @@ export default function StatsPage() {
                   data={stats.ranks.map((r) => ({ key: r.rank, label: `${r.emoji} ${r.rank}`, value: r.count }))}
                 />
               </Card>
+
+              {/* 정모 */}
+              {moim && moim.total > 0 && (
+                <>
+                  <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <StatCard label="정모 횟수" value={`${moim.total}회`} tone="text-amber-300" />
+                    <StatCard label="누적 참석" value={`${moim.attendances}명`} tone="text-amber-300" />
+                    <StatCard label="평균 참석" value={`${moim.avgAttendees}명`} tone="text-amber-300" />
+                    <StatCard label="한 번이라도 온 사람" value={`${moim.participants}명`} tone="text-amber-300" />
+                  </motion.div>
+
+                  <Card
+                    title="☕ 정모별 참석 인원"
+                    sub={`${fmtDay(moim.list[0].date ?? "")} ~ ${fmtDay(moim.list[moim.list.length - 1].date ?? "")} · 막대를 누르면 신규 인원`}
+                  >
+                    <ColumnChart
+                      name="참석"
+                      unit="명"
+                      data={moim.list.map((m) => ({
+                        key: m.postId,
+                        label: m.date ? fmtDay(m.date) : "?",
+                        value: m.count,
+                        note: `신규 ${m.newcomers}명`,
+                        tooltipLabel: [m.date, m.title].filter(Boolean).join(" "),
+                      }))}
+                    />
+                  </Card>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <Card title="🏆 벙 참석 TOP 10" sub="지금 방에 있는 멤버 기준">
+                      <ol className="space-y-2">
+                        {moim.top.map((t, i) => (
+                          <li key={t.userId} className="flex items-center gap-3 text-sm">
+                            <span className="w-6 shrink-0 text-center text-xs text-slate-500">{MEDALS[i] ?? i + 1}</span>
+                            <Link
+                              href={`/members/${t.userId}`}
+                              className="w-20 shrink-0 truncate text-slate-200 hover:text-violet-300 transition-colors"
+                            >
+                              {parseNick(t.name).name}
+                            </Link>
+                            <div className="flex-1 h-2 rounded-full bg-white/5 overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-amber-400 to-orange-400"
+                                style={{ width: `${(t.count / maxMoim) * 100}%` }}
+                              />
+                            </div>
+                            <span className="w-10 shrink-0 text-right text-xs text-slate-400 tabular-nums">{t.count}회</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </Card>
+
+                    <Card title="📍 정모 장소" sub={`${moim.locations.length}곳`}>
+                      <ol className="space-y-1.5">
+                        {moim.locations.map((l) => (
+                          <li key={l.location} className="flex items-center gap-3 text-sm">
+                            <span className="flex-1 min-w-0 truncate text-slate-300">{l.location}</span>
+                            <span className="text-xs text-slate-400 tabular-nums">{l.count}회</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </Card>
+                  </div>
+
+                  <Card title="🗓️ 정모 기록" sub="최신순">
+                    <ul className="space-y-2">
+                      {[...moim.list].reverse().map((m) => (
+                        <li key={m.postId} className="flex items-baseline gap-3 text-sm">
+                          <span className="w-12 shrink-0 text-xs text-amber-200/80 tabular-nums">
+                            {m.date ? fmtDay(m.date) : "-"}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-slate-200 break-words">{m.title ?? "정모"}</span>
+                            {m.location && <span className="block text-[11px] text-slate-500">📍 {m.location}</span>}
+                          </span>
+                          <span className="shrink-0 text-xs text-slate-400 tabular-nums">{m.count}명</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </Card>
+                </>
+              )}
 
               {/* 대화 활동 */}
               {act && (

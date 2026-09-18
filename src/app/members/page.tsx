@@ -8,7 +8,7 @@ import PageHeader from "@/components/PageHeader";
 import Notice from "@/components/Notice";
 import StatCard from "@/components/StatCard";
 import { fadeUp, stagger } from "@/lib/motion";
-import { MEMBERS_API_URL, fmtAgo, parseNick, type Member } from "@/lib/members";
+import { MEMBERS_API_URL, fmtAgo, fmtMoimDate, parseNick, type Member } from "@/lib/members";
 
 type SortKey = "chat" | "study" | "recent";
 
@@ -67,7 +67,7 @@ export default function MembersPage() {
         className="pb-10"
         badge={`👥 현재 방에 있는 멤버 ${members ? `${members.length}명` : ""}`}
         title="둘러보기"
-        description="채팅 수, 레벨, 스터디 인증까지 한눈에. 이름을 누르면 프로필로 이동해요."
+        description="채팅 수, 레벨, 스터디 인증, 벙 참석까지 한눈에. 이름을 누르면 프로필로 이동해요."
       />
 
       <section className="relative px-6 pb-32">
@@ -146,10 +146,25 @@ export default function MembersPage() {
                                 </span>
                               ))}
                             </span>
+                            {m.recentMoims && m.recentMoims.length > 0 && (
+                              <span className="flex flex-wrap items-center gap-1 mt-1.5">
+                                <span className="text-[10px] text-slate-600">최근 벙</span>
+                                {m.recentMoims.map((mo) => (
+                                  <span
+                                    key={mo.postId}
+                                    title={[mo.date, mo.title, mo.location].filter(Boolean).join(" · ")}
+                                    className="max-w-[11rem] truncate px-1.5 py-0.5 rounded-md border border-amber-500/15 bg-amber-500/5 text-[10px] text-amber-200/80"
+                                  >
+                                    <span className="tabular-nums">{fmtMoimDate(mo.date)}</span> {mo.title}
+                                  </span>
+                                ))}
+                              </span>
+                            )}
                           </span>
                           <span className="shrink-0 flex flex-col items-end gap-0.5 text-xs tabular-nums">
                             <span className="text-cyan-300 font-semibold">💬 {m.chatCount.toLocaleString()}</span>
                             <span className="text-emerald-300">📚 {m.studyCertCount}</span>
+                            <span className="text-amber-300" title="벙 참석">☕ {m.moimCount ?? 0}</span>
                           </span>
                           <span className="hidden sm:block w-16 text-right text-[11px] text-slate-500 shrink-0">
                             {fmtAgo(m.lastSeenAt)}

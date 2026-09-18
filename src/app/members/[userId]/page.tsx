@@ -100,7 +100,7 @@ export default function MemberDetailPage() {
               </motion.div>
 
               {/* Stats */}
-              <motion.div variants={fadeUp} className="grid grid-cols-3 gap-3 mb-4">
+              <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                 <StatCard label="레벨" value={`Lv.${member.level}`} tone="text-violet-300" valueClassName="text-lg" />
                 <StatCard
                   label="채팅"
@@ -112,6 +112,12 @@ export default function MemberDetailPage() {
                   label="스터디 인증"
                   value={`${member.studyCertCount}회`}
                   tone="text-emerald-300"
+                  valueClassName="text-lg"
+                />
+                <StatCard
+                  label="벙 참석"
+                  value={`${member.moimCount ?? 0}회`}
+                  tone="text-amber-300"
                   valueClassName="text-lg"
                 />
               </motion.div>
@@ -137,6 +143,33 @@ export default function MemberDetailPage() {
                   </p>
                 )}
               </motion.div>
+
+              {/* Moims */}
+              {member.moims && (
+                <motion.div variants={fadeUp} className="glass-card rounded-2xl p-5 sm:p-6 mb-4">
+                  <div className="flex items-baseline justify-between mb-3">
+                    <p className="text-sm font-semibold text-slate-100">☕ 벙 참석 기록</p>
+                    <p className="text-xs text-slate-500">전체 {member.moims.length}회</p>
+                  </div>
+                  {member.moims.length === 0 ? (
+                    <p className="text-xs text-slate-600">아직 참석한 벙이 없어요.</p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {member.moims.map((mo) => (
+                        <li key={mo.postId} className="flex items-baseline gap-3 text-sm">
+                          <span className="w-28 shrink-0 text-xs text-amber-200/80 tabular-nums">
+                            {mo.date ? fmtCertDate(mo.date) : "-"}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-slate-200 break-words">{mo.title ?? "벙"}</span>
+                            {mo.location && <span className="block text-[11px] text-slate-500">📍 {mo.location}</span>}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </motion.div>
+              )}
 
               {/* Study certs */}
               <motion.div variants={fadeUp} className="glass-card rounded-2xl p-5 sm:p-6">

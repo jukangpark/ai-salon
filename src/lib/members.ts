@@ -15,9 +15,22 @@ export type Member = {
   introduction: string | null;
   firstSeenAt: number | null;
   lastSeenAt: number | null;
+  // 벙(정모) 참석 — 서버 배포 전 응답엔 없을 수 있어 optional.
+  moimCount?: number;
+  recentMoims?: Moim[]; // 최근 3개, 최신순
 };
 
-export type MemberDetail = Member & { studyCerts: string[] }; // KST YYYY-MM-DD 최신순
+// 벙(정모) 1건. date 는 KST YYYY-MM-DD.
+export type Moim = { postId: string; date: string | null; title: string | null; location: string | null };
+
+export type MemberDetail = Member & { studyCerts: string[]; moims?: Moim[] }; // KST YYYY-MM-DD 최신순
+
+// "2026-07-18" → "7/18"
+export const fmtMoimDate = (ymd: string | null) => {
+  if (!ymd) return "";
+  const [, m, d] = ymd.split("-").map(Number);
+  return `${m}/${d}`;
+};
 
 // 살롱 닉 "이름/나이/지역/성별" 파싱. 서버 util.parseNick 과 같은 규칙(앞뒤 장식 제거, '/' 옆 공백 허용).
 export const parseNick = (raw: string) => {

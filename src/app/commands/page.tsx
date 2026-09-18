@@ -142,6 +142,18 @@ const categories: Category[] = [
   },
   {
     emoji: "🌸",
+    title: "벙 참여",
+    accent: "amber",
+    note: "정모(벙) 참석 기록 기준이에요. 순위는 지금 방에 있는 멤버만 세요.",
+    commands: [
+      { cmd: "벙참여순위", args: "[월]", desc: "벙 참석 횟수 TOP 10을 보여줘요. 월을 주면 그 달 기준이에요." },
+      { cmd: "월별벙참여순위조회", args: "[월]", desc: "이번 달(또는 지정한 달) 벙 참여순위를 보여줘요." },
+      { cmd: "벙참여수조회", args: "[이름]", desc: "나(또는 해당 멤버)의 벙 참석 횟수를 보여줘요." },
+      { cmd: "벙참여순위조회", args: "[이름]", desc: "나(또는 해당 멤버)의 벙 참여 순위를 보여줘요." },
+    ],
+  },
+  {
+    emoji: "🌸",
     title: "AI",
     accent: "fuchsia",
     note: "골드 이상 등급만 사용할 수 있어요. 📰 AI 뉴스 자동 브리핑은 현재 쉬고 있어요.",
@@ -159,7 +171,6 @@ const categories: Category[] = [
     title: "메타",
     accent: "amber",
     commands: [
-      { cmd: "유저데이터삭제", args: "[이름]", desc: "유저 데이터 삭제를 요청해요. (실제 삭제는 운영자가 처리)" },
       { cmd: "명령어목록", desc: "전체 명령어 목록을 보여줘요." },
     ],
   },
