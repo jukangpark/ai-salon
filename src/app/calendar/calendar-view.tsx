@@ -6,6 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Notice from "@/components/Notice";
 import StatCard from "@/components/StatCard";
+import { StatCardsSkeleton } from "@/components/Skeletons";
+import { Skeleton } from "@/components/ui/skeleton";
 import { WEEKDAYS } from "@/lib/constants";
 import { MOIM_CALENDAR_API_URL, fetchJson, peekJson } from "@/lib/api";
 import { parseNick } from "@/lib/members";
@@ -154,6 +156,32 @@ function EventCard({ p, now }: { p: Post; now: number }) {
   );
 }
 
+// 달력 모양 자리표시 — 데이터 대기 중, 그리고 page.tsx 의 Suspense fallback 으로 쓴다.
+export function CalendarSkeleton() {
+  return (
+    <div className="flex min-w-0 flex-col gap-3">
+      <Skeleton className="h-9 w-56 rounded-xl" />
+      <StatCardsSkeleton count={4} className="grid-cols-2 gap-2 sm:grid-cols-4" />
+      <div className="glass-card rounded-2xl overflow-hidden">
+        <div className="grid grid-cols-7 border-b border-white/[0.07] text-center text-[11px] font-medium text-slate-500">
+          {WEEKDAYS.map((w) => (
+            <div key={w} className="py-2">
+              {w}
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7">
+          {Array.from({ length: 35 }, (_, i) => (
+            <div key={i} className="min-h-[64px] border-b border-r border-white/[0.05] p-1 sm:min-h-[104px] sm:p-1.5">
+              <Skeleton className="size-6 rounded-full" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CalendarView() {
   const [posts, setPosts] = useState<Post[] | null>(() => {
     const j = peekJson<CalendarRes>(MOIM_CALENDAR_API_URL);
@@ -217,7 +245,7 @@ export default function CalendarView() {
   }, [grid, byDay, month, now]);
 
   if (error) return <Notice className="text-slate-400">{error}</Notice>;
-  if (!posts) return <Notice>불러오는 중…</Notice>;
+  if (!posts) return <CalendarSkeleton />;
 
   const [y, m] = month.split("-").map(Number);
   const dayPosts = selected ? byDay.get(selected) ?? [] : [];

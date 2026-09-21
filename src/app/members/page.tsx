@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import PageShell from "@/components/PageShell";
 import PageHeader from "@/components/PageHeader";
 import Notice from "@/components/Notice";
+import { ListSkeleton, StatCardsSkeleton } from "@/components/Skeletons";
 import StatCard from "@/components/StatCard";
 import { fadeUp, stagger } from "@/lib/motion";
 import { fetchJson, peekJson } from "@/lib/api";
@@ -64,7 +65,13 @@ export default function MembersPage() {
       <section className="relative px-6 pb-32">
         <div className="max-w-3xl mx-auto">
           {error && <Notice className="text-slate-400">멤버 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</Notice>}
-          {!members && !error && <Notice>불러오는 중…</Notice>}
+          {!members && !error && (
+            <>
+              <StatCardsSkeleton count={3} className="grid-cols-3 mb-6" />
+              <div className="glass-card rounded-xl h-[42px] mb-4" />
+              <ListSkeleton rows={8} />
+            </>
+          )}
 
           {members && (
             <motion.div initial="hidden" animate="visible" variants={stagger(0.05)}>

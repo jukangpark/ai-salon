@@ -6,6 +6,8 @@ import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import PageShell from "@/components/PageShell";
 import Notice from "@/components/Notice";
+import { BlockSkeleton, StatCardsSkeleton } from "@/components/Skeletons";
+import { Skeleton } from "@/components/ui/skeleton";
 import StatCard from "@/components/StatCard";
 import { fadeUp, stagger } from "@/lib/motion";
 import { WEEKDAYS } from "@/lib/constants";
@@ -64,7 +66,20 @@ export default function MemberDetailPage() {
             ‹ 둘러보기
           </Link>
 
-          {status === "loading" && <Notice>불러오는 중…</Notice>}
+          {status === "loading" && (
+            <>
+              <div className="glass-card rounded-2xl p-6 sm:p-8 mb-4 flex items-start gap-4">
+                <Skeleton className="size-10 rounded-full" />
+                <div className="flex-1">
+                  <Skeleton className="h-7 w-32" />
+                  <Skeleton className="mt-2 h-3 w-24" />
+                  <Skeleton className="mt-4 h-4 w-40" />
+                </div>
+              </div>
+              <StatCardsSkeleton count={4} className="grid-cols-2 sm:grid-cols-4 mb-4" />
+              <BlockSkeleton className="h-48" />
+            </>
+          )}
           {status === "notfound" && (
             <Notice className="p-8 text-slate-400">지금 방에 없는 멤버이거나 존재하지 않는 주소예요.</Notice>
           )}

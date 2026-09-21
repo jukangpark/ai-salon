@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import PageShell from "@/components/PageShell";
 import PageHeader from "@/components/PageHeader";
 import Notice from "@/components/Notice";
+import { BlockSkeleton, ListSkeleton, StatCardsSkeleton } from "@/components/Skeletons";
 import StatCard from "@/components/StatCard";
 import { fadeUp, stagger } from "@/lib/motion";
 import { MEDALS, WEEKDAYS } from "@/lib/constants";
@@ -119,9 +120,7 @@ function StudyHeatmap() {
     );
   }
   if (!cal) {
-    return (
-      <Notice className="mb-8">달력 불러오는 중…</Notice>
-    );
+    return <BlockSkeleton className="mb-8 h-80" />;
   }
 
   const [y, m] = cal.month.split("-").map(Number);
@@ -305,7 +304,12 @@ export default function StudyPage() {
 
           {error && <Notice className="text-slate-400">인증 현황을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</Notice>}
 
-          {!data && !error && <Notice>불러오는 중…</Notice>}
+          {!data && !error && (
+            <>
+              <StatCardsSkeleton count={3} className="grid-cols-1 sm:grid-cols-3 mb-8" />
+              <ListSkeleton rows={6} />
+            </>
+          )}
 
           {data && (
             <motion.div initial="hidden" animate="visible" variants={stagger(0.05)}>

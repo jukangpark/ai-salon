@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import PageShell from "@/components/PageShell";
 import PageHeader from "@/components/PageHeader";
 import Notice from "@/components/Notice";
+import { BlockSkeleton, StatCardsSkeleton } from "@/components/Skeletons";
 import StatCard from "@/components/StatCard";
 import { Badge } from "@/components/ui/badge";
 import { Card as CardRoot, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -193,7 +194,16 @@ export default function StatsPage() {
       <section className="relative px-6 pb-32">
         <div className="max-w-3xl mx-auto">
           {error && <Notice className="text-slate-400">통계를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</Notice>}
-          {!stats && !error && <Notice>불러오는 중…</Notice>}
+          {!stats && !error && (
+            <div className="flex flex-col gap-4">
+              <StatCardsSkeleton count={4} className="grid-cols-2 sm:grid-cols-4" />
+              <BlockSkeleton className="h-72" />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <BlockSkeleton className="h-72" />
+                <BlockSkeleton className="h-72" />
+              </div>
+            </div>
+          )}
 
           {stats && (
             <motion.div initial="hidden" animate="visible" variants={stagger(0.05)} className="flex flex-col gap-4">
