@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { fadeUp, stagger } from "@/lib/motion";
 
@@ -22,9 +23,9 @@ export default function PageHeader({
     <section className={cn("relative pt-32 pb-12 px-6 text-center", className)}>
       <motion.div initial="hidden" animate="visible" variants={stagger(0.08)} className="max-w-3xl mx-auto">
         <motion.div variants={fadeUp} className="flex justify-center mb-6">
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-sm text-slate-400 font-medium">
+          <Badge variant="outline" className="glass-card gap-2 px-4 py-2 text-sm text-slate-400 whitespace-normal">
             {badge}
-          </span>
+          </Badge>
         </motion.div>
         <motion.h1 variants={fadeUp} className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
           <span className="gradient-text">{title}</span>

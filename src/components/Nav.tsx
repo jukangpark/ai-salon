@@ -1,21 +1,35 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { MOIM_CALENDAR_API_URL, STATS_API_URL, STUDY_API_URL, STUDY_CALENDAR_URL, STUDY_RANKING_URL, warmApis } from "@/lib/api";
+import { MEMBERS_API_URL } from "@/lib/members";
 
 // 모바일에선 폭이 모자라 "홈"을 숨긴다 (로고가 홈 링크).
 const LINKS = [
-  { href: "/", label: "홈", active: "text-white bg-white/8", mobileHidden: true },
-  { href: "/members", label: "둘러보기", active: "text-violet-300 bg-violet-500/10" },
-  { href: "/commands", label: "명령어", active: "text-cyan-300 bg-cyan-500/10" },
-  { href: "/study", label: "스터디", active: "text-emerald-300 bg-emerald-500/10" },
-  { href: "/stats", label: "통계", active: "text-amber-300 bg-amber-500/10" },
-  { href: "/calendar", label: "달력", active: "text-orange-300 bg-orange-500/10" },
-  { href: "/rules", label: "회칙", active: "text-pink-300 bg-pink-500/10" },
+  { href: "/", label: "홈", mobileHidden: true },
+  { href: "/members", label: "둘러보기" },
+  { href: "/commands", label: "명령어" },
+  { href: "/study", label: "스터디" },
+  { href: "/stats", label: "통계" },
+  { href: "/calendar", label: "달력" },
+  { href: "/rules", label: "회칙" },
 ];
+
+// 활성 탭은 브랜드 단색. 탭마다 색을 달리하지 않는다.
+const ACTIVE = "text-violet-200 bg-violet-500/15 hover:bg-violet-500/15 hover:text-violet-200";
+
 
 export default function Nav() {
   const pathname = usePathname();
+
+  // 탭 데이터를 미리 받아둔다. 홈서버 API 가 요청마다 ~0.7초라 탭을 누른 뒤에 받으면 매번 기다리게 된다.
+  useEffect(() => {
+    warmApis([MEMBERS_API_URL, STATS_API_URL, MOIM_CALENDAR_API_URL, STUDY_API_URL, STUDY_CALENDAR_URL, STUDY_RANKING_URL]);
+  }, []);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 py-4">
@@ -26,15 +40,18 @@ export default function Nav() {
         </Link>
         <div className="flex items-center gap-0.5 sm:gap-1">
           {LINKS.map((link) => (
-            <Link
+            <Button
               key={link.href}
-              href={link.href}
-              className={`${link.mobileHidden ? "hidden sm:inline-block" : ""} px-2 sm:px-3 py-1.5 rounded-lg text-[13px] sm:text-sm font-medium whitespace-nowrap transition-colors ${
-                pathname === link.href ? link.active : "text-slate-400 hover:text-white"
-              }`}
+              asChild
+              variant="ghost"
+              className={cn(
+                "h-auto rounded-lg px-2 py-1.5 text-[13px] sm:px-3 sm:text-sm",
+                link.mobileHidden && "hidden sm:inline-flex",
+                pathname === link.href ? ACTIVE : "text-slate-400 hover:bg-transparent hover:text-white",
+              )}
             >
-              {link.label}
-            </Link>
+              <Link href={link.href}>{link.label}</Link>
+            </Button>
           ))}
         </div>
       </div>

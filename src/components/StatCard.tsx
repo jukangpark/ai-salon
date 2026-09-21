@@ -1,3 +1,4 @@
+import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 // 라벨 + 숫자 요약 카드.
@@ -15,9 +16,9 @@ export default function StatCard({
   valueClassName?: string;
 }) {
   return (
-    <div className={cn("glass-card rounded-2xl p-4 sm:p-5", className)}>
-      <p className="text-xs text-slate-500 mb-1">{label}</p>
-      <p className={cn("text-sm font-semibold tabular-nums", tone, valueClassName)}>{value}</p>
-    </div>
+    <Card className={cn("glass-card gap-1 rounded-2xl p-4 shadow-none sm:p-5", className)}>
+      <CardDescription className="text-xs text-slate-500">{label}</CardDescription>
+      <CardTitle className={cn("text-sm tabular-nums", tone, valueClassName)}>{value}</CardTitle>
+    </Card>
   );
 }
