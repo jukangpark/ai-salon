@@ -1,8 +1,5 @@
-"use client";
-
 import { useEffect } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, useLocation } from "react-router";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { MOIM_CALENDAR_API_URL, STATS_API_URL, STUDY_API_URL, STUDY_CALENDAR_URL, STUDY_RANKING_URL, warmApis } from "@/lib/api";
@@ -24,7 +21,7 @@ const ACTIVE = "text-violet-200 bg-violet-500/15 hover:bg-violet-500/15 hover:te
 
 
 export default function Nav() {
-  const pathname = usePathname();
+  const { pathname } = useLocation();
 
   // 탭 데이터를 미리 받아둔다. 홈서버 API 가 요청마다 ~0.7초라 탭을 누른 뒤에 받으면 매번 기다리게 된다.
   useEffect(() => {
@@ -33,8 +30,8 @@ export default function Nav() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 py-4">
-      <div className="max-w-5xl mx-auto flex items-center justify-between glass-card rounded-2xl px-3 sm:px-5 py-3">
-        <Link href="/" className="flex shrink-0 items-center gap-2.5">
+      <div className="max-w-5xl mx-auto flex items-center justify-between glass-card backdrop-blur-md rounded-2xl px-3 sm:px-5 py-1.5 sm:py-3">
+        <Link to="/" className="flex shrink-0 items-center gap-2.5">
           <img src="/instagram_profile.png" alt="AI 살롱 광주" className="w-7 h-7" />
           <span className="hidden sm:inline font-bold text-slate-100 text-sm whitespace-nowrap">AI 살롱 광주</span>
         </Link>
@@ -45,12 +42,12 @@ export default function Nav() {
               asChild
               variant="ghost"
               className={cn(
-                "h-auto rounded-lg px-2 py-1.5 text-[13px] sm:px-3 sm:text-sm",
+                "h-auto rounded-lg px-2 py-2.5 text-[13px] sm:px-3 sm:py-1.5 sm:text-sm",
                 link.mobileHidden && "hidden sm:inline-flex",
                 pathname === link.href ? ACTIVE : "text-slate-400 hover:bg-transparent hover:text-white",
               )}
             >
-              <Link href={link.href}>{link.label}</Link>
+              <Link to={link.href}>{link.label}</Link>
             </Button>
           ))}
         </div>

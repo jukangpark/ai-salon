@@ -35,8 +35,7 @@ jobs:
           rsync -a --delete \
             --exclude='.git' \
             --exclude='node_modules' \
-            --exclude='.next' \
-            --exclude='out' \
+            --exclude='dist' \
             ./ "$DEPLOY_DIR/"
 
       - name: Build & up (prod compose override)

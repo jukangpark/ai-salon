@@ -1,10 +1,6 @@
-"use client";
-
 import React from "react";
-import { motion } from "framer-motion";
 import PageShell from "@/components/PageShell";
 import PageHeader from "@/components/PageHeader";
-import { fadeUp, stagger } from "@/lib/motion";
 import { accent } from "@/lib/accents";
 
 type Paragraph = {
@@ -439,13 +435,9 @@ export default function RulesPage() {
       />
 
       {/* Table of Contents */}
-      <section className="relative px-6 pb-16">
+      <section className="relative px-4 sm:px-6 pb-16">
         <div className="max-w-3xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-60px" }}
-            variants={fadeUp}
+          <div
             className="glass-card rounded-2xl p-6"
           >
             <p className="text-xs uppercase tracking-widest text-slate-500 mb-4 font-medium">
@@ -464,25 +456,21 @@ export default function RulesPage() {
                 );
               })}
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Chapters */}
-      <section className="relative px-6 pb-32">
+      <section className="relative px-4 sm:px-6 pb-32">
         <div className="max-w-3xl mx-auto space-y-8">
           {chapters.map((chapter) => {
             return (
-              <motion.div
+              <div
                 key={chapter.num}
                 id={chapter.num}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-60px" }}
-                variants={stagger(0.08)}
               >
                 {/* Chapter header */}
-                <motion.div variants={fadeUp} className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-3 mb-4">
                   <span
                     className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold ${accent.badge} ${accent.border}`}
                   >
@@ -490,14 +478,13 @@ export default function RulesPage() {
                     {chapter.num}
                   </span>
                   <h2 className="text-lg font-bold text-slate-100">{chapter.title}</h2>
-                </motion.div>
+                </div>
 
                 {/* Articles */}
                 <div className="space-y-3">
                   {chapter.articles.map((article) => (
-                    <motion.div
+                    <div
                       key={article.num}
-                      variants={fadeUp}
                       className={`glass-card rounded-2xl p-5 border overflow-hidden relative ${accent.border}`}
                     >
                       <div
@@ -543,10 +530,10 @@ export default function RulesPage() {
                           ))}
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>

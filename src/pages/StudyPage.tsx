@@ -1,14 +1,10 @@
-"use client";
-
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
+import { Link } from "react-router";
 import PageShell from "@/components/PageShell";
 import PageHeader from "@/components/PageHeader";
 import Notice from "@/components/Notice";
 import { BlockSkeleton, ListSkeleton, StatCardsSkeleton } from "@/components/Skeletons";
 import StatCard from "@/components/StatCard";
-import { fadeUp, stagger } from "@/lib/motion";
 import { MEDALS, WEEKDAYS } from "@/lib/constants";
 import { STUDY_API_URL as API_URL, STUDY_CALENDAR_URL as CALENDAR_URL, STUDY_RANKING_URL as RANKING_URL, fetchJson, peekJson } from "@/lib/api";
 import { MEMBERS_API_URL, type Member } from "@/lib/members";
@@ -30,10 +26,7 @@ function StudyRanking() {
   if (!members || members.length === 0) return null;
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={fadeUp}
+    <div
       className="glass-card rounded-2xl p-5 sm:p-6 mb-8"
     >
       <div className="flex items-baseline justify-between mb-4">
@@ -66,7 +59,7 @@ function StudyRanking() {
           </li>
         ))}
       </ol>
-    </motion.div>
+    </div>
   );
 }
 
@@ -194,7 +187,7 @@ function StudyHeatmap() {
         })}
       </div>
 
-      <div className="flex items-center justify-end gap-1.5 mt-3 text-[10px] text-slate-500">
+      <div className="flex items-center justify-end gap-1.5 mt-3 text-[11px] text-slate-500">
         <span>적음</span>
         {[0, 1, 2, 3, 4].map((c) => (
           <span key={c} className={`w-3 h-3 rounded ${heatClass(c)}`} />
@@ -297,7 +290,7 @@ export default function StudyPage() {
         }
       />
 
-      <section className="relative px-6 pb-32">
+      <section className="relative px-4 sm:px-6 pb-32">
         <div className="max-w-3xl mx-auto">
           <StudyRanking />
           <StudyHeatmap />
@@ -312,10 +305,9 @@ export default function StudyPage() {
           )}
 
           {data && (
-            <motion.div initial="hidden" animate="visible" variants={stagger(0.05)}>
+            <div>
               {/* Summary */}
-              <motion.div
-                variants={fadeUp}
+              <div
                 className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8"
               >
                 <StatCard
@@ -330,7 +322,7 @@ export default function StudyPage() {
                   value={`${achieved} / ${data.members.length}명`}
                   tone="text-emerald-300"
                 />
-              </motion.div>
+              </div>
 
               {/* Members */}
               <div className="space-y-2">
@@ -373,10 +365,10 @@ export default function StudyPage() {
                     </>
                   );
                   return (
-                    <motion.div key={`${m.name}-${i}`} variants={fadeUp}>
+                    <div key={`${m.name}-${i}`}>
                       {userId ? (
                         <Link
-                          href={`/members/${encodeURIComponent(userId)}`}
+                          to={`/members/${encodeURIComponent(userId)}`}
                           className={`${cardClass} hover:border-emerald-400/40 transition-colors`}
                         >
                           {body}
@@ -384,11 +376,11 @@ export default function StudyPage() {
                       ) : (
                         <div className={cardClass}>{body}</div>
                       )}
-                    </motion.div>
+                    </div>
                   );
                 })}
               </div>
-            </motion.div>
+            </div>
           )}
         </div>
       </section>

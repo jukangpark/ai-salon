@@ -1,8 +1,5 @@
-"use client";
-
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Link, useSearchParams } from "react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Notice from "@/components/Notice";
 import StatCard from "@/components/StatCard";
@@ -97,7 +94,7 @@ function PersonLink({ p }: { p: Person }) {
   const label = parseNick(p.name ?? "").name;
   // 나간 사람은 /members/:userId 가 404 라 링크를 걸지 않는다.
   return p.present && p.userId ? (
-    <Link href={`/members/${p.userId}`} className="hover:text-violet-300 transition-colors">
+    <Link to={`/members/${p.userId}`} className="hover:text-violet-300 transition-colors">
       {label}
     </Link>
   ) : (
@@ -111,20 +108,20 @@ function EventCard({ p, now }: { p: Post; now: number }) {
     <div className={`glass-card rounded-2xl overflow-hidden flex min-w-0 ${p.canceled ? "opacity-50" : ""}`}>
       <div aria-hidden className="w-1 shrink-0" style={{ background: colorOf(p.postId) }} />
       <div className="min-w-0 flex-1 px-4 py-3.5">
-        <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500">
+        <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
           <span className="tabular-nums">{fmtRange(p)}</span>
           {p.canceled ? (
-            <span className="px-1.5 py-px rounded-md bg-rose-500/15 text-rose-300 text-[10px]">취소</span>
+            <span className="px-1.5 py-px rounded-md bg-rose-500/15 text-rose-300 text-[11px]">취소</span>
           ) : past ? (
-            <span className="px-1.5 py-px rounded-md bg-white/5 text-slate-400 text-[10px]">지난 벙</span>
+            <span className="px-1.5 py-px rounded-md bg-white/5 text-slate-400 text-[11px]">지난 벙</span>
           ) : (
-            <span className="px-1.5 py-px rounded-md border border-emerald-500/30 text-emerald-300 text-[10px]">예정</span>
+            <span className="px-1.5 py-px rounded-md border border-emerald-500/30 text-emerald-300 text-[11px]">예정</span>
           )}
         </div>
         <div className={`mt-1 break-words font-semibold tracking-tight text-slate-100 ${p.canceled ? "line-through" : ""}`}>
           {p.title}
         </div>
-        {p.location && <div className="mt-0.5 text-[11px] text-slate-500">📍 {p.location}</div>}
+        {p.location && <div className="mt-0.5 text-xs text-slate-500">📍 {p.location}</div>}
         <div className="mt-1.5 text-xs text-slate-500">
           {p.host?.name && (
             <>
@@ -145,7 +142,7 @@ function EventCard({ p, now }: { p: Post; now: number }) {
         {p.attendees.length > 0 && (
           <div className="mt-2.5 flex flex-wrap gap-1">
             {p.attendees.map((a, i) => (
-              <span key={a.userId ?? `${a.name}-${i}`} className="rounded-full bg-white/[0.07] px-2 py-0.5 text-[11px] text-slate-300">
+              <span key={a.userId ?? `${a.name}-${i}`} className="rounded-full bg-white/[0.07] px-2 py-0.5 text-xs text-slate-300">
                 <PersonLink p={a} />
               </span>
             ))}
@@ -156,8 +153,8 @@ function EventCard({ p, now }: { p: Post; now: number }) {
   );
 }
 
-// 달력 모양 자리표시 — 데이터 대기 중, 그리고 page.tsx 의 Suspense fallback 으로 쓴다.
-export function CalendarSkeleton() {
+// 달력 모양 자리표시 — 데이터 대기 중에 쓴다.
+function CalendarSkeleton() {
   return (
     <div className="flex min-w-0 flex-col gap-3">
       <Skeleton className="h-9 w-56 rounded-xl" />
@@ -189,9 +186,7 @@ export default function CalendarView() {
   });
   const [error, setError] = useState<string | null>(null);
   const [showCanceled, setShowCanceled] = useState(false);
-  const params = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
+  const [params, setParams] = useSearchParams();
 
   const today = todayKey();
   // 월·선택일은 주소에 둔다 (?m=2026-09&d=2026-09-18) — 카톡방에 "이 날 벙" 링크를 그대로 공유할 수 있게.
@@ -200,7 +195,7 @@ export default function CalendarView() {
   const month = /^\d{4}-\d{2}$/.test(mParam) ? mParam : today.slice(0, 7);
   const selected = /^\d{4}-\d{2}-\d{2}$/.test(dParam) ? dParam : month === today.slice(0, 7) ? today : null;
   const go = (m: string, d: string | null) =>
-    router.replace(`${pathname}?${new URLSearchParams(d ? { m, d } : { m })}`, { scroll: false });
+    setParams(new URLSearchParams(d ? { m, d } : { m }), { replace: true, preventScrollReset: true });
 
   useEffect(() => {
     fetchJson<CalendarRes>(MOIM_CALENDAR_API_URL)

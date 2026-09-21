@@ -1,11 +1,7 @@
-"use client";
-
 import React from "react";
-import { motion } from "framer-motion";
 import Marquee from "react-fast-marquee";
 import PageShell from "@/components/PageShell";
 import GradientLink from "@/components/GradientLink";
-import { fadeUp, stagger } from "@/lib/motion";
 import { INSTAGRAM_URL, KAKAO_OPEN_CHAT_URL } from "@/lib/constants";
 import Claude from "@lobehub/icons/es/Claude";
 import Gemini from "@lobehub/icons/es/Gemini";
@@ -37,8 +33,6 @@ import {
   Users,
   Zap,
 } from "lucide-react";
-
-const container = stagger(0.1);
 
 const aiTools: { name: string; Icon: React.ComponentType<{ size?: number; color?: string }> }[] = [
   { name: "ChatGPT", Icon: OpenAI },
@@ -99,15 +93,11 @@ function ToolChip({ tool }: { tool: AiTool }) {
 // 스크롤해서 보일 때 자식들이 차례로 떠오르는 영역
 function Reveal({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <motion.div
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
-      variants={container}
+    <div
       className={className}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -125,11 +115,11 @@ function SectionHeading({
   className?: string;
 }) {
   return (
-    <motion.div variants={fadeUp} className={`text-center ${className}`}>
+    <div className={`text-center ${className}`}>
       <p className={`${eyebrowClassName} font-medium text-sm uppercase tracking-widest mb-3`}>{eyebrow}</p>
       <h2 className="text-3xl sm:text-4xl font-bold text-slate-100 mb-4">{title}</h2>
       {description && <p className="text-slate-400 text-base max-w-xl mx-auto">{description}</p>}
-    </motion.div>
+    </div>
   );
 }
 
@@ -137,55 +127,49 @@ export default function Home() {
   return (
     <PageShell grid>
       {/* ─── Hero ─── */}
-      <section className="relative flex flex-col items-center justify-center min-h-screen text-center px-6 pt-20 pb-16">
-        <motion.div initial="hidden" animate="visible" variants={container} className="max-w-4xl mx-auto">
+      <section className="relative flex flex-col items-center justify-center min-h-screen text-center px-4 sm:px-6 pt-20 pb-16">
+        <div className="max-w-4xl mx-auto">
           {/* Logo */}
-          <motion.div variants={fadeUp} className="flex justify-center mb-6">
-            <motion.img
+          <div className="flex justify-center mb-6">
+            <img
               src="/instagram_profile.png"
               alt="AI 살롱 광주 로고"
               className="w-24 h-24 sm:w-28 sm:h-28 drop-shadow-[0_0_24px_rgba(244,114,182,0.5)]"
-              animate={{ y: [0, -8, 0] }}
-              transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
             />
-          </motion.div>
+          </div>
 
           {/* Badge */}
-          <motion.div variants={fadeUp} className="flex justify-center mb-8">
+          <div className="flex justify-center mb-8">
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-sm text-violet-200 font-medium">
               <Sparkles size={14} className="text-violet-400" />
               광주 1기 멤버 모집 중 🔥
             </span>
-          </motion.div>
+          </div>
 
           {/* Title */}
-          <motion.h1
-            variants={fadeUp}
+          <h1
             className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 leading-[1.1]"
           >
             <span className="gradient-text">AI 살롱</span>
             <br />
             <span className="text-slate-100">광주</span>
-          </motion.h1>
+          </h1>
 
           {/* Subtitle */}
-          <motion.p
-            variants={fadeUp}
+          <p
             className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-4 leading-relaxed"
           >
             나 혼자 쓰면 기술,{" "}
             <span className="text-slate-200 font-medium">함께 나누면 가치</span>
-          </motion.p>
-          <motion.p
-            variants={fadeUp}
+          </p>
+          <p
             className="text-base text-slate-500 max-w-xl mx-auto mb-12"
           >
             AI 활용법을 자유롭게 공유하는 모임
-          </motion.p>
+          </p>
 
           {/* CTA buttons */}
-          <motion.div
-            variants={fadeUp}
+          <div
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <GradientLink href={KAKAO_OPEN_CHAT_URL}>
@@ -199,25 +183,20 @@ export default function Home() {
               <Rocket size={18} />
               모임 소개 보기
             </a>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        {/* Scroll indicator — 모바일에선 화면이 짧아 버튼을 가리므로 숨긴다 */}
+        <div
+          className="hidden sm:block absolute bottom-8 left-1/2 -translate-x-1/2"
         >
           <div className="flex flex-col items-center gap-2 text-slate-600 text-xs">
             <span>스크롤</span>
-            <motion.div
-              animate={{ y: [0, 6, 0] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
+            <div
               className="w-0.5 h-6 bg-gradient-to-b from-slate-600 to-transparent rounded-full"
             />
           </div>
-        </motion.div>
+        </div>
       </section>
 
       {/* ─── AI Tools Marquee ─── */}
@@ -244,7 +223,7 @@ export default function Home() {
       </section>
 
       {/* ─── About ─── */}
-      <section id="about" className="relative py-24 px-6">
+      <section id="about" className="relative py-24 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto">
           <Reveal className="grid md:grid-cols-3 gap-6">
             {[
@@ -264,9 +243,8 @@ export default function Home() {
                 desc: "꾸준히 성장하는 분위기 속에서 함께 실질적인 결과를 만들어가요.",
               },
             ].map((item) => (
-              <motion.div
+              <div
                 key={item.title}
-                variants={fadeUp}
                 className="glass-card rounded-2xl p-6 hover:scale-[1.02] transition-transform duration-300"
               >
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-violet-500/10">
@@ -274,14 +252,14 @@ export default function Home() {
                 </div>
                 <h3 className="text-lg font-semibold text-slate-100 mb-2">{item.title}</h3>
                 <p className="text-slate-400 text-sm leading-relaxed">{item.desc}</p>
-              </motion.div>
+              </div>
             ))}
           </Reveal>
         </div>
       </section>
 
       {/* ─── Welcome ─── */}
-      <section className="relative py-24 px-6">
+      <section className="relative py-24 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto">
           <Reveal>
             <SectionHeading
@@ -293,14 +271,13 @@ export default function Home() {
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {targetAudience.map((item, i) => (
-                <motion.div
+                <div
                   key={i}
-                  variants={fadeUp}
                   className="glass-card rounded-2xl p-5 flex items-start gap-4 hover:scale-[1.02] transition-transform duration-300 cursor-default"
                 >
                   <span className="text-2xl flex-shrink-0 mt-0.5">{item.icon}</span>
                   <p className="text-slate-300 text-sm leading-relaxed">{item.text}</p>
-                </motion.div>
+                </div>
               ))}
             </div>
           </Reveal>
@@ -308,7 +285,7 @@ export default function Home() {
       </section>
 
       {/* ─── Topics ─── */}
-      <section className="relative py-24 px-6">
+      <section className="relative py-24 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto">
           <Reveal>
             <SectionHeading
@@ -318,26 +295,25 @@ export default function Home() {
               description="수준 상관없이, 본인이 흥미로웠던 거면 뭐든 OK 👍"
             />
 
-            <motion.div variants={container} className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {topics.map((topic) => (
-                <motion.div
+                <div
                   key={topic.label}
-                  variants={fadeUp}
                   className="glass-card rounded-2xl p-4 text-center hover:scale-105 hover:border-violet-500/30 transition-all duration-300 cursor-default group"
                 >
                   <div className="text-3xl mb-3">{topic.icon}</div>
                   <p className="text-slate-300 text-sm font-medium group-hover:text-white transition-colors">
                     {topic.label}
                   </p>
-                </motion.div>
+                </div>
               ))}
-            </motion.div>
+            </div>
           </Reveal>
         </div>
       </section>
 
       {/* ─── Rule ─── */}
-      <section className="relative py-24 px-6">
+      <section className="relative py-24 px-4 sm:px-6">
         <div className="max-w-3xl mx-auto">
           <Reveal>
             <SectionHeading
@@ -347,8 +323,7 @@ export default function Home() {
               className="mb-12"
             />
 
-            <motion.div
-              variants={fadeUp}
+            <div
               className="relative glass-card rounded-3xl p-8 sm:p-10 text-center overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-violet-600/5 to-pink-600/5" />
@@ -369,13 +344,13 @@ export default function Home() {
                   </span>
                 </p>
               </div>
-            </motion.div>
+            </div>
           </Reveal>
         </div>
       </section>
 
       {/* ─── 회비 ─── */}
-      <section className="relative py-24 px-6">
+      <section className="relative py-24 px-4 sm:px-6">
         <div className="max-w-3xl mx-auto">
           <Reveal>
             <SectionHeading
@@ -385,8 +360,7 @@ export default function Home() {
               className="mb-12"
             />
 
-            <motion.div
-              variants={fadeUp}
+            <div
               className="relative glass-card rounded-3xl p-8 sm:p-10 text-center overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-violet-600/5 to-pink-600/5" />
@@ -404,19 +378,15 @@ export default function Home() {
                   </span>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </Reveal>
         </div>
       </section>
 
       {/* ─── Hot Topics Banner ─── */}
-      <section className="relative py-16 px-6">
+      <section className="relative py-16 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={fadeUp}
+          <div
           >
             <div className="glass-card rounded-2xl p-6 sm:p-8 border border-amber-500/20">
               <div className="flex items-start gap-4">
@@ -447,42 +417,39 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* ─── CTA ─── */}
-      <section className="relative py-32 px-6">
+      <section className="relative py-32 px-4 sm:px-6">
         <div className="max-w-3xl mx-auto text-center">
           <Reveal>
-            <motion.div variants={fadeUp}>
+            <div>
               <div className="inline-flex items-center gap-2 mb-6">
                 <Zap size={20} className="text-violet-400" />
                 <span className="text-violet-400 font-medium text-sm uppercase tracking-widest">
                   Join Us
                 </span>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.h2
-              variants={fadeUp}
+            <h2
               className="text-4xl sm:text-5xl font-bold text-slate-100 mb-6 leading-tight"
             >
               광주에서 AI로
               <br />
               <span className="gradient-text">같이 살아남아요</span>
-            </motion.h2>
+            </h2>
 
-            <motion.p
-              variants={fadeUp}
+            <p
               className="text-slate-400 text-lg mb-10 leading-relaxed"
             >
               나 혼자 쓰면 기술,{" "}
               <span className="text-slate-200 font-medium">함께 나누면 가치</span>
-            </motion.p>
+            </p>
 
-            <motion.div
-              variants={fadeUp}
+            <div
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <GradientLink href={KAKAO_OPEN_CHAT_URL} className="px-10">
@@ -498,11 +465,10 @@ export default function Home() {
                 <Lightbulb size={18} />
                 DM으로 문의
               </a>
-            </motion.div>
+            </div>
 
             {/* Tags */}
-            <motion.div
-              variants={fadeUp}
+            <div
               className="mt-12 flex flex-wrap justify-center gap-2"
             >
               {[
@@ -521,7 +487,7 @@ export default function Home() {
                   {tag}
                 </span>
               ))}
-            </motion.div>
+            </div>
           </Reveal>
         </div>
       </section>

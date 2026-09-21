@@ -1,8 +1,5 @@
-"use client";
-
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
+import { Link } from "react-router";
 import PageShell from "@/components/PageShell";
 import PageHeader from "@/components/PageHeader";
 import Notice from "@/components/Notice";
@@ -12,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card as CardRoot, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { fadeUp, stagger } from "@/lib/motion";
 import { MEDALS, WEEKDAYS } from "@/lib/constants";
 import { STATS_API_URL, fetchJson, peekJson } from "@/lib/api";
 import { MEMBERS_API_URL, fmtAgo, parseNick, type Member } from "@/lib/members";
@@ -122,21 +118,19 @@ const regionColor = (region: string) => {
 const fmtPeriod = (sec: number) =>
   new Date(sec * 1000).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul", month: "numeric", day: "numeric" });
 
-const MotionCard = motion.create(CardRoot);
-
 // 월 선택 탭 — 활성 달만 옅은 흰 배경.
 const MONTH_TAB =
   "h-auto flex-none rounded-lg px-2.5 py-1 text-xs tabular-nums text-slate-500 hover:text-white data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-none dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-white/10";
 
 function Card({ title, sub, children }: { title: string; sub?: string; children: React.ReactNode }) {
   return (
-    <MotionCard variants={fadeUp} className="glass-card gap-4 rounded-2xl p-5 shadow-none sm:p-6">
+    <CardRoot className="glass-card gap-4 rounded-2xl p-5 shadow-none sm:p-6">
       <CardHeader className="flex items-baseline justify-between gap-3 px-0">
         <CardTitle className="text-base text-slate-100">{title}</CardTitle>
         {sub && <CardDescription className="text-xs text-slate-500 text-right">{sub}</CardDescription>}
       </CardHeader>
       <CardContent className="px-0">{children}</CardContent>
-    </MotionCard>
+    </CardRoot>
   );
 }
 
@@ -191,7 +185,7 @@ export default function StatsPage() {
         description="살롱에 지금 함께 있는 멤버들의 구성과 활동을 숫자로 봐요. 나간 분은 집계에서 빠져요."
       />
 
-      <section className="relative px-6 pb-32">
+      <section className="relative px-4 sm:px-6 pb-32">
         <div className="max-w-3xl mx-auto">
           {error && <Notice className="text-slate-400">통계를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</Notice>}
           {!stats && !error && (
@@ -206,9 +200,9 @@ export default function StatsPage() {
           )}
 
           {stats && (
-            <motion.div initial="hidden" animate="visible" variants={stagger(0.05)} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4">
               {/* 요약 */}
-              <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <StatCard label="멤버" value={`${stats.members.total}명`} />
                 <StatCard
                   label="성비 (남 : 여)"
@@ -216,7 +210,7 @@ export default function StatsPage() {
                 />
                 <StatCard label="평균 나이" value={`${stats.members.avgAge}세`} />
                 <StatCard label="누적 채팅" value={`${stats.chat.total.toLocaleString()}회`} tone="text-cyan-300" />
-              </motion.div>
+              </div>
 
               {/* 성비 */}
               <Card title="👫 성비" sub={`정규 닉 ${stats.members.parsed}명 기준`}>
@@ -269,12 +263,12 @@ export default function StatsPage() {
               {/* 정모 */}
               {moim && moim.total > 0 && (
                 <>
-                  <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <StatCard label="정모 횟수" value={`${moim.total}회`} tone="text-violet-300" />
                     <StatCard label="누적 참석" value={`${moim.attendances}명`} tone="text-violet-300" />
                     <StatCard label="평균 참석" value={`${moim.avgAttendees}명`} tone="text-violet-300" />
                     <StatCard label="한 번이라도 온 사람" value={`${moim.participants}명`} tone="text-violet-300" />
-                  </motion.div>
+                  </div>
 
                   <Card title="☕ 정모별 참석 인원" sub={moimRange ?? undefined}>
                     <ColumnChart
@@ -296,7 +290,7 @@ export default function StatsPage() {
                           <li key={t.userId} className="flex items-center gap-3 text-sm">
                             <span className="w-6 shrink-0 text-center text-xs text-slate-500">{MEDALS[i] ?? i + 1}</span>
                             <Link
-                              href={`/members/${t.userId}`}
+                              to={`/members/${t.userId}`}
                               className="w-20 shrink-0 truncate text-slate-200 hover:text-violet-300 transition-colors"
                             >
                               {parseNick(t.name).name}
@@ -330,7 +324,7 @@ export default function StatsPage() {
               {/* 대화 활동 */}
               {act && (
                 <>
-                  <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <StatCard label="하루 평균 발화 (최근 30일)" value={`${act.averages.perDay30}회`} tone="text-cyan-300" />
                     <StatCard label="하루 평균 발화 (전체)" value={`${act.averages.perDayAll}회`} tone="text-violet-300" />
                     <StatCard
@@ -343,7 +337,7 @@ export default function StatsPage() {
                       value={act.busiestDay ? `${fmtDay(act.busiestDay.day)} · ${act.busiestDay.count}회` : "-"}
                       tone="text-cyan-300"
                     />
-                  </motion.div>
+                  </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <Card
@@ -431,14 +425,14 @@ export default function StatsPage() {
                                   <span className="w-6 shrink-0 text-center text-xs text-slate-500">{MEDALS[i] ?? i + 1}</span>
                                   {r.present ? (
                                     <Link
-                                      href={`/members/${r.userId}`}
+                                      to={`/members/${r.userId}`}
                                       className="flex-1 truncate text-slate-200 hover:text-violet-300 transition-colors"
                                     >
                                       {parseNick(r.name).name}
                                     </Link>
                                   ) : (
                                     <span className="flex-1 truncate text-slate-500">
-                                      {parseNick(r.name).name} <span className="text-[10px]">(나감)</span>
+                                      {parseNick(r.name).name} <span className="text-[11px]">(나감)</span>
                                     </span>
                                   )}
                                   <span className="text-xs text-slate-400 tabular-nums">{r.count.toLocaleString()}회</span>
@@ -465,7 +459,7 @@ export default function StatsPage() {
                         <li key={c.userId} className="flex items-center gap-3 text-sm">
                           <span className="w-6 shrink-0 text-center text-xs text-slate-500">{MEDALS[i] ?? i + 1}</span>
                           <Link
-                            href={`/members/${c.userId}`}
+                            to={`/members/${c.userId}`}
                             className="w-24 shrink-0 truncate text-slate-200 hover:text-violet-300 transition-colors"
                           >
                             {p.name}
@@ -516,7 +510,7 @@ export default function StatsPage() {
                     </CardRoot>
                   ))}
                 </div>
-                <p className="mt-3 text-[11px] text-slate-600">
+                <p className="mt-3 text-xs text-slate-600">
                   카톡에서 <span className="text-slate-400">/살롱봇 직업등록 [내용]</span> 처럼 등록할 수 있어요.
                 </p>
               </Card>
@@ -561,9 +555,9 @@ export default function StatsPage() {
                     ))}
                   </ol>
                 )}
-                <p className="mt-3 text-[11px] text-slate-600">
+                <p className="mt-3 text-xs text-slate-600">
                   달력과 전체 현황은{" "}
-                  <Link href="/study" className="text-emerald-300/80 hover:text-emerald-200">
+                  <Link to="/study" className="text-emerald-300/80 hover:text-emerald-200">
                     스터디 페이지
                   </Link>
                   에서 볼 수 있어요.
@@ -581,19 +575,19 @@ export default function StatsPage() {
                       <li key={a.m.userId} className="flex items-center gap-3 text-sm">
                         <span className="w-6 shrink-0 text-center text-xs text-slate-500 tabular-nums">{i + 1}</span>
                         <Link
-                          href={`/members/${a.m.userId}`}
+                          to={`/members/${a.m.userId}`}
                           className="min-w-0 flex-1 truncate text-slate-200 hover:text-violet-300 transition-colors"
                         >
                           {parseNick(a.m.name).name}
-                          <span className="ml-2 text-[11px] text-slate-600">합류 {fmtAgo(a.m.firstSeenAt) ?? "-"}</span>
+                          <span className="ml-2 text-xs text-slate-600">합류 {fmtAgo(a.m.firstSeenAt) ?? "-"}</span>
                         </Link>
                         {a.last ? (
                           <span className="shrink-0 text-xs text-slate-400 tabular-nums">
                             {fmtDay(a.last)} · {daysAgo(a.last)}일 전
-                            <span className="ml-1.5 text-[11px] text-slate-600">({a.m.moimCount ?? 0}회)</span>
+                            <span className="ml-1.5 text-xs text-slate-600">({a.m.moimCount ?? 0}회)</span>
                           </span>
                         ) : (
-                          <Badge className="rounded-md bg-rose-500/10 px-1.5 py-0.5 text-[11px] font-normal text-rose-300">
+                          <Badge className="rounded-md bg-rose-500/10 px-1.5 py-0.5 text-xs font-normal text-rose-300">
                             참석 없음
                           </Badge>
                         )}
@@ -602,7 +596,7 @@ export default function StatsPage() {
                   </ol>
                 </Card>
               )}
-            </motion.div>
+            </div>
           )}
         </div>
       </section>

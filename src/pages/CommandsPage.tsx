@@ -1,10 +1,6 @@
-"use client";
-
 import { useState } from "react";
-import { motion } from "framer-motion";
 import PageShell from "@/components/PageShell";
 import PageHeader from "@/components/PageHeader";
-import { fadeUp, stagger } from "@/lib/motion";
 import { accent } from "@/lib/accents";
 
 const TRIGGER = "/살롱봇";
@@ -185,8 +181,7 @@ function CommandCard({ command }: { command: Command }) {
   };
 
   return (
-    <motion.div
-      variants={fadeUp}
+    <div
       className={`glass-card rounded-2xl p-5 border overflow-hidden relative ${accent.border}`}
     >
       <div
@@ -205,7 +200,7 @@ function CommandCard({ command }: { command: Command }) {
               </code>
               {command.tier && (
                 <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-semibold ${tierClasses[command.tier]}`}
+                  className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[11px] font-semibold ${tierClasses[command.tier]}`}
                 >
                   {command.tier} 이상
                 </span>
@@ -257,7 +252,7 @@ function CommandCard({ command }: { command: Command }) {
           </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -284,13 +279,9 @@ export default function CommandsPage() {
       />
 
       {/* Table of Contents */}
-      <section className="relative px-6 pb-16">
+      <section className="relative px-4 sm:px-6 pb-16">
         <div className="max-w-3xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-60px" }}
-            variants={fadeUp}
+          <div
             className="glass-card rounded-2xl p-6"
           >
             <p className="text-xs uppercase tracking-widest text-slate-500 mb-4 font-medium">
@@ -309,27 +300,22 @@ export default function CommandsPage() {
                 );
               })}
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Categories */}
-      <section className="relative px-6 pb-32">
+      <section className="relative px-4 sm:px-6 pb-32">
         <div className="max-w-3xl mx-auto space-y-8">
           {categories.map((category) => {
             return (
-              <motion.div
+              <div
                 key={category.title}
                 id={category.title}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-60px" }}
-                variants={stagger(0.08)}
                 className="scroll-mt-24"
               >
                 {/* Category header */}
-                <motion.div
-                  variants={fadeUp}
+                <div
                   className="flex items-center gap-3 mb-4"
                 >
                   <span
@@ -338,15 +324,14 @@ export default function CommandsPage() {
                     <span className={`w-1.5 h-1.5 rounded-full ${accent.dot}`} />
                     {category.emoji} {category.title}
                   </span>
-                </motion.div>
+                </div>
 
                 {category.note && (
-                  <motion.p
-                    variants={fadeUp}
+                  <p
                     className="text-xs text-slate-500 mb-3 ml-1"
                   >
                     {category.note}
-                  </motion.p>
+                  </p>
                 )}
 
                 {/* Commands */}
@@ -358,7 +343,7 @@ export default function CommandsPage() {
                     />
                   ))}
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>

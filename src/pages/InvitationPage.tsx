@@ -1,10 +1,6 @@
-"use client";
-
-import { motion } from "framer-motion";
 import { Calendar, Coffee, MapPin, MessageSquare, Sparkles, Users, Zap } from "lucide-react";
 import PageBackground from "@/components/PageBackground";
 import GradientLink from "@/components/GradientLink";
-import { fadeUp, stagger } from "@/lib/motion";
 import { INSTAGRAM_URL, KAKAO_OPEN_CHAT_URL } from "@/lib/constants";
 
 export default function InvitationPage() {
@@ -12,34 +8,28 @@ export default function InvitationPage() {
     <main className="relative min-h-screen overflow-hidden flex flex-col items-center justify-start px-4 py-12">
       <PageBackground />
 
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={stagger(0.12)}
+      <div
         className="relative w-full max-w-sm mx-auto flex flex-col gap-4"
       >
         {/* Header label */}
-        <motion.div variants={fadeUp} className="flex justify-center">
+        <div className="flex justify-center">
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card text-xs text-violet-200 font-medium">
             <Sparkles size={12} className="text-violet-400" />
             당신을 초대합니다
           </span>
-        </motion.div>
+        </div>
 
         {/* Main card */}
-        <motion.div
-          variants={fadeUp}
+        <div
           className="relative glass-card rounded-3xl p-8 text-center overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-violet-600/8 via-transparent to-pink-600/8" />
           <div className="relative">
             {/* Logo */}
-            <motion.img
+            <img
               src="/instagram_profile.png"
               alt="AI 살롱 광주"
               className="w-20 h-20 mx-auto mb-5 rounded-full object-cover drop-shadow-[0_0_20px_rgba(244,114,182,0.5)]"
-              animate={{ y: [0, -6, 0] }}
-              transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
             />
 
             {/* Title */}
@@ -62,10 +52,10 @@ export default function InvitationPage() {
               <span className="text-slate-200 font-medium">광주 AI 커뮤니티</span>에 함께해요.
             </p>
           </div>
-        </motion.div>
+        </div>
 
         {/* Info cards */}
-        <motion.div variants={fadeUp} className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <div className="glass-card rounded-2xl p-4 flex flex-col items-center gap-2 text-center">
             <div className="w-9 h-9 rounded-xl bg-violet-500/10 flex items-center justify-center">
               <Users size={16} className="text-violet-400" />
@@ -110,10 +100,10 @@ export default function InvitationPage() {
               <span className="text-slate-500 text-xs font-normal">모집 중 🔥</span>
             </p>
           </div>
-        </motion.div>
+        </div>
 
         {/* Rules card */}
-        <motion.div variants={fadeUp} className="glass-card rounded-2xl p-5">
+        <div className="glass-card rounded-2xl p-5">
           <div className="flex items-center gap-2 mb-3">
             <Zap size={14} className="text-violet-400" />
             <p className="text-slate-300 text-sm font-semibold">딱 하나만 지켜주세요</p>
@@ -125,10 +115,10 @@ export default function InvitationPage() {
           <p className="text-slate-500 text-xs mt-2">
             유령 회원은 사양합니다 👻
           </p>
-        </motion.div>
+        </div>
 
         {/* What we talk about */}
-        <motion.div variants={fadeUp} className="glass-card rounded-2xl p-5">
+        <div className="glass-card rounded-2xl p-5">
           <p className="text-slate-300 text-sm font-semibold mb-3">이런 얘기 해요</p>
           <div className="flex flex-wrap gap-2">
             {[
@@ -147,10 +137,10 @@ export default function InvitationPage() {
               </span>
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* CTA buttons */}
-        <motion.div variants={fadeUp} className="flex flex-col gap-3 pb-4">
+        <div className="flex flex-col gap-3 pb-4">
           <GradientLink href={KAKAO_OPEN_CHAT_URL} className="w-full px-6">
             <MessageSquare size={18} />
             카카오 오픈채팅 참여하기
@@ -170,8 +160,8 @@ export default function InvitationPage() {
           >
             메인 페이지로 돌아가기 →
           </a>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </main>
   );
 }

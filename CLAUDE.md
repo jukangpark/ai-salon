@@ -72,6 +72,6 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 This is the **AI 살롱 광주** website — a landing page for a Gwangju-based AI enthusiast meetup community.
 
-- Framework: Next.js (App Router) + TypeScript + Tailwind CSS
-- Deployment: Vercel
+- Framework: React + Vite (SPA, react-router) + TypeScript + Tailwind CSS
+- Deployment: 홈서버 Docker — Express(`server.mjs`)가 `dist/` 를 서빙, ai-salon.jklab.app (Vercel 배포는 중단)
 - Design: Modern dark theme with gradient accents and glassmorphism

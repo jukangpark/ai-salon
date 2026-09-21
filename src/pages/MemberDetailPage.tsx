@@ -1,15 +1,10 @@
-"use client";
-
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { Link, useParams } from "react-router";
 import PageShell from "@/components/PageShell";
 import Notice from "@/components/Notice";
 import { BlockSkeleton, StatCardsSkeleton } from "@/components/Skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
 import StatCard from "@/components/StatCard";
-import { fadeUp, stagger } from "@/lib/motion";
 import { WEEKDAYS } from "@/lib/constants";
 import { MEMBERS_API_URL, fmtAgo, fmtDate, koreanAge, moimHref, parseNick, type MemberDetail } from "@/lib/members";
 
@@ -20,7 +15,7 @@ const fmtCertDate = (ymd: string) => {
 };
 
 export default function MemberDetailPage() {
-  const { userId } = useParams<{ userId: string }>();
+  const { userId } = useParams();
   const [member, setMember] = useState<MemberDetail | null>(null);
   const [status, setStatus] = useState<"loading" | "ok" | "notfound" | "error">("loading");
 
@@ -60,9 +55,9 @@ export default function MemberDetailPage() {
 
   return (
     <PageShell>
-      <section className="relative pt-28 pb-32 px-6">
+      <section className="relative pt-28 pb-32 px-4 sm:px-6">
         <div className="max-w-2xl mx-auto">
-          <Link href="/members" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-white transition-colors mb-6">
+          <Link to="/members" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-white transition-colors mb-6">
             ‹ 둘러보기
           </Link>
 
@@ -88,9 +83,9 @@ export default function MemberDetailPage() {
           )}
 
           {member && p && (
-            <motion.div initial="hidden" animate="visible" variants={stagger(0.06)}>
+            <div>
               {/* Header */}
-              <motion.div variants={fadeUp} className="glass-card rounded-2xl p-6 sm:p-8 mb-4 border border-violet-400/20">
+              <div className="glass-card rounded-2xl p-6 sm:p-8 mb-4 border border-violet-400/20">
                 <div className="flex items-start gap-4">
                   <span className="text-4xl leading-none" title={member.tier}>{member.tierEmoji}</span>
                   <div className="min-w-0 flex-1">
@@ -101,16 +96,16 @@ export default function MemberDetailPage() {
                     {tags.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mt-3">
                         {tags.map((t) => (
-                          <span key={t} className="px-2 py-0.5 rounded-md bg-white/5 text-[11px] text-slate-400">{t}</span>
+                          <span key={t} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-slate-400">{t}</span>
                         ))}
                       </div>
                     )}
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Stats */}
-              <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                 <StatCard label="레벨" value={`Lv.${member.level}`} valueClassName="text-lg" />
                 <StatCard
                   label="채팅"
@@ -130,10 +125,10 @@ export default function MemberDetailPage() {
                   tone="text-violet-300"
                   valueClassName="text-lg"
                 />
-              </motion.div>
+              </div>
 
               {/* Profile */}
-              <motion.div variants={fadeUp} className="glass-card rounded-2xl p-5 sm:p-6 mb-4">
+              <div className="glass-card rounded-2xl p-5 sm:p-6 mb-4">
                 <p className="text-sm font-semibold text-slate-100 mb-3">프로필</p>
                 {profile.length > 0 ? (
                   <dl className="grid grid-cols-[auto_1fr] gap-x-5 gap-y-2 text-sm">
@@ -147,11 +142,11 @@ export default function MemberDetailPage() {
                 ) : (
                   <p className="text-xs text-slate-600">아직 등록된 프로필이 없어요.</p>
                 )}
-              </motion.div>
+              </div>
 
               {/* Moims */}
               {member.moims && (
-                <motion.div variants={fadeUp} className="glass-card rounded-2xl p-5 sm:p-6 mb-4">
+                <div className="glass-card rounded-2xl p-5 sm:p-6 mb-4">
                   <div className="flex items-baseline justify-between mb-3">
                     <p className="text-sm font-semibold text-slate-100">☕ 벙 참석 기록</p>
                     <p className="text-xs text-slate-500">전체 {member.moims.length}회</p>
@@ -169,7 +164,7 @@ export default function MemberDetailPage() {
                             </span>
                             <span className="min-w-0 flex-1">
                               <span className="block text-slate-200 break-words">{mo.title ?? "벙"}</span>
-                              {mo.location && <span className="block text-[11px] text-slate-500">📍 {mo.location}</span>}
+                              {mo.location && <span className="block text-xs text-slate-500">📍 {mo.location}</span>}
                             </span>
                           </>
                         );
@@ -178,7 +173,7 @@ export default function MemberDetailPage() {
                           <li key={mo.postId}>
                             {href ? (
                               <Link
-                                href={href}
+                                to={href}
                                 title="달력에서 이 날 보기"
                                 className="-mx-2 flex items-baseline gap-3 rounded-lg px-2 py-1 text-sm transition-colors hover:bg-white/5"
                               >
@@ -193,11 +188,11 @@ export default function MemberDetailPage() {
                       })}
                     </ul>
                   )}
-                </motion.div>
+                </div>
               )}
 
               {/* Study certs */}
-              <motion.div variants={fadeUp} className="glass-card rounded-2xl p-5 sm:p-6">
+              <div className="glass-card rounded-2xl p-5 sm:p-6">
                 <div className="flex items-baseline justify-between mb-3">
                   <p className="text-sm font-semibold text-slate-100">📚 스터디 인증 기록</p>
                   <p className="text-xs text-slate-500">전체 {member.studyCerts.length}회</p>
@@ -217,8 +212,8 @@ export default function MemberDetailPage() {
                     ))}
                   </div>
                 )}
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
           )}
         </div>
       </section>

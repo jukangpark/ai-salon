@@ -1,14 +1,10 @@
-"use client";
-
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
+import { Link } from "react-router";
 import PageShell from "@/components/PageShell";
 import PageHeader from "@/components/PageHeader";
 import Notice from "@/components/Notice";
 import { ListSkeleton, StatCardsSkeleton } from "@/components/Skeletons";
 import StatCard from "@/components/StatCard";
-import { fadeUp, stagger } from "@/lib/motion";
 import { fetchJson, peekJson } from "@/lib/api";
 import { MEMBERS_API_URL, fmtAgo, fmtMoimDate, koreanAge, moimHref, parseNick, type Member } from "@/lib/members";
 
@@ -62,7 +58,7 @@ export default function MembersPage() {
         description="채팅 수, 레벨, 스터디 인증, 벙 참석까지 한눈에. 이름을 누르면 프로필로 이동해요."
       />
 
-      <section className="relative px-6 pb-32">
+      <section className="relative px-4 sm:px-6 pb-32">
         <div className="max-w-3xl mx-auto">
           {error && <Notice className="text-slate-400">멤버 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</Notice>}
           {!members && !error && (
@@ -74,16 +70,16 @@ export default function MembersPage() {
           )}
 
           {members && (
-            <motion.div initial="hidden" animate="visible" variants={stagger(0.05)}>
+            <div>
               {/* Summary */}
-              <motion.div variants={fadeUp} className="grid grid-cols-3 gap-3 mb-6">
+              <div className="grid grid-cols-3 gap-3 mb-6">
                 <StatCard label="멤버" value={`${members.length}명`} />
                 <StatCard label="누적 채팅" value={`${totalChat.toLocaleString()}회`} tone="text-cyan-300" />
                 <StatCard label="누적 스터디 인증" value={`${totalStudy}회`} tone="text-emerald-300" />
-              </motion.div>
+              </div>
 
               {/* Controls */}
-              <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-2 mb-4">
+              <div className="flex flex-col sm:flex-row gap-2 mb-4">
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
@@ -96,7 +92,7 @@ export default function MembersPage() {
                       key={s.key}
                       type="button"
                       onClick={() => setSort(s.key)}
-                      className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+                      className={`flex-1 sm:flex-none px-3 py-2 sm:py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
                         sort === s.key ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"
                       }`}
                     >
@@ -104,7 +100,7 @@ export default function MembersPage() {
                     </button>
                   ))}
                 </div>
-              </motion.div>
+              </div>
 
               {/* List */}
               {list.length === 0 ? (
@@ -120,11 +116,11 @@ export default function MembersPage() {
                       m.mbti,
                     ].filter(Boolean) as string[];
                     return (
-                      <motion.div key={m.userId} variants={fadeUp}>
+                      <div key={m.userId}>
                         <div className="relative glass-card rounded-2xl border border-white/5 hover:border-violet-400/30 transition-colors px-4 sm:px-5 py-3.5 flex items-center gap-3">
                           {/* 카드 전체가 프로필 링크 — 안쪽 「최근 벙」 칩은 달력으로 가야 해서 겹쳐 깐다 */}
                           <Link
-                            href={`/members/${encodeURIComponent(m.userId)}`}
+                            to={`/members/${encodeURIComponent(m.userId)}`}
                             aria-label={`${p.name} 프로필`}
                             className="absolute inset-0 rounded-2xl"
                           />
@@ -135,13 +131,13 @@ export default function MembersPage() {
                           <span className="flex-1 min-w-0">
                             <span className="flex items-center gap-2 flex-wrap">
                               <span className="text-sm font-semibold text-slate-100">{p.name}</span>
-                              <span className="text-[11px] text-slate-500">Lv.{m.level}</span>
+                              <span className="text-xs text-slate-500">Lv.{m.level}</span>
                             </span>
                             <span className="flex flex-wrap gap-1 mt-1">
                               {tags.map((t) => (
                                 <span
                                   key={t}
-                                  className="px-1.5 py-0.5 rounded-md bg-white/5 text-[10px] text-slate-400"
+                                  className="px-2 py-0.5 rounded-md bg-white/5 text-[11px] text-slate-400"
                                 >
                                   {t}
                                 </span>
@@ -149,7 +145,7 @@ export default function MembersPage() {
                             </span>
                             {m.recentMoims && m.recentMoims.length > 0 && (
                               <span className="flex flex-wrap items-center gap-1 mt-1.5">
-                                <span className="text-[10px] text-slate-600">최근 벙</span>
+                                <span className="text-[11px] text-slate-600">최근 벙</span>
                                 {m.recentMoims.map((mo) => {
                                   const chip = (
                                     <>
@@ -159,12 +155,12 @@ export default function MembersPage() {
                                   const title = [mo.date, mo.title, mo.location].filter(Boolean).join(" · ");
                                   const href = moimHref(mo.date);
                                   const cls =
-                                    "max-w-[11rem] truncate px-1.5 py-0.5 rounded-md bg-white/5 text-[10px] text-slate-400";
+                                    "max-w-[11rem] truncate px-2 py-1 rounded-md bg-white/5 text-[11px] text-slate-400";
                                   // 날짜를 아는 벙은 달력의 그 날로 보낸다.
                                   return href ? (
                                     <Link
                                       key={mo.postId}
-                                      href={href}
+                                      to={href}
                                       title={`${title} · 달력에서 보기`}
                                       className={`${cls} relative hover:bg-violet-500/15 hover:text-violet-200 transition-colors`}
                                     >
@@ -194,12 +190,12 @@ export default function MembersPage() {
                           </span>
                           <span className="text-slate-600">›</span>
                         </div>
-                      </motion.div>
+                      </div>
                     );
                   })}
                 </div>
               )}
-            </motion.div>
+            </div>
           )}
         </div>
       </section>

@@ -1,5 +1,3 @@
-"use client";
-
 import { useId } from "react";
 import { Area, AreaChart, Bar, BarChart, Cell, Label, LabelList, Pie, PieChart, XAxis, YAxis } from "recharts";
 import {
