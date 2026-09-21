@@ -7,12 +7,7 @@ import CalendarView from "./calendar-view";
 // 달력 본체는 주소(?m=·?d=)를 읽는 클라이언트 컴포넌트라 Suspense 로 감싼다 (useSearchParams 권장 패턴).
 export default function CalendarPage() {
   return (
-    <PageShell
-      orbs={[
-        "top-[-10%] left-[-5%] w-[500px] h-[500px] bg-orange-500/10 blur-[120px]",
-        "bottom-[20%] right-[-10%] w-[400px] h-[400px] bg-violet-600/10 blur-[120px]",
-      ]}
-    >
+    <PageShell>
       <PageHeader
         className="pb-10"
         badge="📅 벙 달력"

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import PageShell from "@/components/PageShell";
 import PageHeader from "@/components/PageHeader";
 import { fadeUp, stagger } from "@/lib/motion";
-import { accentClasses, type Accent } from "@/lib/accents";
+import { accent } from "@/lib/accents";
 
 const TRIGGER = "/살롱봇";
 
@@ -21,7 +21,6 @@ type Command = {
 type Category = {
   emoji: string;
   title: string;
-  accent: Accent;
   note?: string;
   commands: Command[];
 };
@@ -30,7 +29,6 @@ const categories: Category[] = [
   {
     emoji: "🌸",
     title: "프로필 등록",
-    accent: "violet",
     commands: [
       { cmd: "직업등록", args: "[내용]", desc: "내 직업을 프로필에 등록해요." },
       { cmd: "자기소개등록", args: "[내용]", desc: "내 자기소개를 등록해요." },
@@ -41,7 +39,6 @@ const categories: Category[] = [
   {
     emoji: "🌸",
     title: "프로필 조회",
-    accent: "pink",
     note: "이름을 생략하면 본인 기준으로 조회돼요.",
     commands: [
       { cmd: "직업조회", args: "[이름?]", desc: "직업을 조회해요." },
@@ -58,7 +55,6 @@ const categories: Category[] = [
   {
     emoji: "🌸",
     title: "채팅 / 레벨",
-    accent: "cyan",
     commands: [
       { cmd: "채팅순위", desc: "채팅 수 기준 순위표를 보여줘요." },
       { cmd: "채팅수조회", args: "[이름?]", desc: "누적 채팅 수를 조회해요." },
@@ -75,7 +71,6 @@ const categories: Category[] = [
   {
     emoji: "🌸",
     title: "멤버 히스토리",
-    accent: "fuchsia",
     commands: [
       { cmd: "방문이력", args: "[이름?]", desc: "입·퇴장 이력을 조회해요. (또는 입퇴장이력)" },
       { cmd: "닉변이력", args: "[이름?]", desc: "닉네임 변경 이력을 조회해요." },
@@ -84,7 +79,6 @@ const categories: Category[] = [
   {
     emoji: "🌸",
     title: "금지어",
-    accent: "amber",
     note: "플래티넘 이상 등급만 사용할 수 있어요.",
     commands: [
       { cmd: "금지어등록", args: "[단어]", desc: "금지어를 추가해요.", tier: "플래티넘" },
@@ -95,7 +89,6 @@ const categories: Category[] = [
   {
     emoji: "🌸",
     title: "게임",
-    accent: "violet",
     commands: [
       {
         cmd: "러시안룰렛",
@@ -118,7 +111,6 @@ const categories: Category[] = [
   {
     emoji: "🌸",
     title: "인물퀴즈",
-    accent: "pink",
     commands: [
       {
         cmd: "인물퀴즈",
@@ -130,7 +122,6 @@ const categories: Category[] = [
   {
     emoji: "🌸",
     title: "스터디 인증",
-    accent: "cyan",
     note: "2주에 3회 이상 / 하루 1회 인증할 수 있어요.",
     commands: [
       { cmd: "스터디인증", desc: "AI 스터디 공유 후 인증해요." },
@@ -143,7 +134,6 @@ const categories: Category[] = [
   {
     emoji: "🌸",
     title: "벙 참여",
-    accent: "amber",
     note: "정모(벙) 참석 기록 기준이에요. 순위는 지금 방에 있는 멤버만 세요.",
     commands: [
       { cmd: "벙참여순위", args: "[월]", desc: "벙 참석 횟수 TOP 10을 보여줘요. 월을 주면 그 달 기준이에요." },
@@ -155,13 +145,12 @@ const categories: Category[] = [
   {
     emoji: "🌸",
     title: "AI",
-    accent: "fuchsia",
     note: "골드 이상 등급만 사용할 수 있어요. 📰 AI 뉴스 자동 브리핑은 현재 쉬고 있어요.",
     commands: [
       {
         cmd: "자유질문",
         args: "[질문]",
-        desc: "살롱봇에게 자유롭게 질문하고 AI 답변을 받아요. 최근 6시간 방 대화 맥락을 반영해요.",
+        desc: "살롱봇에게 자유롭게 질문하고 AI 답변을 받아요. 최근 6시간 방 대화 맥락과 멤버 프로필, 벙(정모) 일정·참석 기록까지 보고 답해요. 벙 장소는 알려주지 않아요.",
         tier: "골드",
       },
     ],
@@ -169,7 +158,6 @@ const categories: Category[] = [
   {
     emoji: "🌸",
     title: "메타",
-    accent: "amber",
     commands: [
       { cmd: "명령어목록", desc: "전체 명령어 목록을 보여줘요." },
     ],
@@ -181,8 +169,7 @@ const tierClasses: Record<Tier, string> = {
   플래티넘: "text-cyan-300 bg-cyan-500/10 border-cyan-500/20",
 };
 
-function CommandCard({ command, accent }: { command: Command; accent: Accent }) {
-  const a = accentClasses[accent];
+function CommandCard({ command }: { command: Command }) {
   const [copied, setCopied] = useState(false);
 
   const fullCmd = `${TRIGGER} ${command.cmd}${command.args ? ` ${command.args}` : ""}`;
@@ -200,10 +187,10 @@ function CommandCard({ command, accent }: { command: Command; accent: Accent }) 
   return (
     <motion.div
       variants={fadeUp}
-      className={`glass-card rounded-2xl p-5 border overflow-hidden relative ${a.border}`}
+      className={`glass-card rounded-2xl p-5 border overflow-hidden relative ${accent.border}`}
     >
       <div
-        className={`absolute inset-0 bg-gradient-to-br ${a.glow} to-transparent pointer-events-none`}
+        className={`absolute inset-0 bg-gradient-to-br ${accent.glow} to-transparent pointer-events-none`}
       />
       <div className="relative">
         <div className="flex items-start gap-2">
@@ -211,7 +198,7 @@ function CommandCard({ command, accent }: { command: Command; accent: Accent }) 
             <div className="flex items-center gap-2 flex-wrap mb-2">
               <code className="font-mono text-sm">
                 <span className="text-slate-500">{TRIGGER} </span>
-                <span className={`font-semibold ${a.cmd}`}>{command.cmd}</span>
+                <span className={`font-semibold ${accent.cmd}`}>{command.cmd}</span>
                 {command.args && (
                   <span className="text-slate-500"> {command.args}</span>
                 )}
@@ -236,7 +223,7 @@ function CommandCard({ command, accent }: { command: Command; accent: Accent }) 
             className={`shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-lg border transition-all hover:scale-110 active:scale-95 ${
               copied
                 ? "text-emerald-300 bg-emerald-500/10 border-emerald-500/30"
-                : `${a.cmd} bg-white/5 border-white/10 hover:bg-white/10`
+                : `${accent.cmd} bg-white/5 border-white/10 hover:bg-white/10`
             }`}
           >
             {copied ? (
@@ -281,14 +268,7 @@ export default function CommandsPage() {
   );
 
   return (
-    <PageShell
-      grid
-      orbs={[
-        "top-[-10%] right-[-5%] w-[500px] h-[500px] bg-violet-600/10 blur-[120px]",
-        "bottom-[20%] left-[-10%] w-[400px] h-[400px] bg-pink-500/8 blur-[120px]",
-        "top-[50%] right-[20%] w-[300px] h-[300px] bg-cyan-500/6 blur-[100px]",
-      ]}
-    >
+    <PageShell grid>
       <PageHeader
         className="pb-16"
         badge={<>🤖 카카오톡 살롱봇 &nbsp;·&nbsp; 총 {totalCommands}개 명령어</>}
@@ -318,12 +298,11 @@ export default function CommandsPage() {
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {categories.map((cat) => {
-                const a = accentClasses[cat.accent];
                 return (
                   <a
                     key={cat.title}
                     href={`#${cat.title}`}
-                    className={`px-3 py-2 rounded-xl border text-xs font-medium transition-all hover:scale-105 ${a.badge} ${a.border}`}
+                    className={`px-3 py-2 rounded-xl border text-xs font-medium transition-all hover:scale-105 ${accent.badge} ${accent.border}`}
                   >
                     {cat.emoji} {cat.title}
                   </a>
@@ -338,7 +317,6 @@ export default function CommandsPage() {
       <section className="relative px-6 pb-32">
         <div className="max-w-3xl mx-auto space-y-8">
           {categories.map((category) => {
-            const a = accentClasses[category.accent];
             return (
               <motion.div
                 key={category.title}
@@ -355,9 +333,9 @@ export default function CommandsPage() {
                   className="flex items-center gap-3 mb-4"
                 >
                   <span
-                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold ${a.badge} ${a.border}`}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold ${accent.badge} ${accent.border}`}
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full ${a.dot}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full ${accent.dot}`} />
                     {category.emoji} {category.title}
                   </span>
                 </motion.div>
@@ -377,7 +355,6 @@ export default function CommandsPage() {
                     <CommandCard
                       key={command.cmd}
                       command={command}
-                      accent={category.accent}
                     />
                   ))}
                 </div>

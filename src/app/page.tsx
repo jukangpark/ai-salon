@@ -135,14 +135,7 @@ function SectionHeading({
 
 export default function Home() {
   return (
-    <PageShell
-      grid
-      orbs={[
-        "top-[-10%] left-[-5%] w-[500px] h-[500px] bg-violet-600/10 blur-[120px]",
-        "top-[30%] right-[-10%] w-[400px] h-[400px] bg-cyan-500/10 blur-[120px]",
-        "bottom-[10%] left-[20%] w-[300px] h-[300px] bg-pink-500/8 blur-[100px]",
-      ]}
-    >
+    <PageShell grid>
       {/* ─── Hero ─── */}
       <section className="relative flex flex-col items-center justify-center min-h-screen text-center px-6 pt-20 pb-16">
         <motion.div initial="hidden" animate="visible" variants={container} className="max-w-4xl mx-auto">
@@ -159,8 +152,8 @@ export default function Home() {
 
           {/* Badge */}
           <motion.div variants={fadeUp} className="flex justify-center mb-8">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-sm text-pink-300 font-medium">
-              <Sparkles size={14} className="text-pink-400" />
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-sm text-violet-200 font-medium">
+              <Sparkles size={14} className="text-violet-400" />
               광주 1기 멤버 모집 중 🔥
             </span>
           </motion.div>
@@ -256,22 +249,19 @@ export default function Home() {
           <Reveal className="grid md:grid-cols-3 gap-6">
             {[
               {
-                icon: <Rocket size={24} className="text-pink-400" />,
+                icon: <Rocket size={24} className="text-violet-400" />,
                 title: "직접 써보고",
                 desc: "단순 정보 공유가 아니라, 직접 쓰고 경험한 것을 나눠요.",
-                accent: "violet",
               },
               {
-                icon: <Users size={24} className="text-fuchsia-400" />,
+                icon: <Users size={24} className="text-violet-400" />,
                 title: "서로 알려주고",
                 desc: "초보도 부담 없이 질문하고, 아는 분은 편하게 알려주는 분위기예요.",
-                accent: "cyan",
               },
               {
-                icon: <Brain size={24} className="text-pink-400" />,
+                icon: <Brain size={24} className="text-violet-400" />,
                 title: "결과를 만들어내고",
                 desc: "꾸준히 성장하는 분위기 속에서 함께 실질적인 결과를 만들어가요.",
-                accent: "pink",
               },
             ].map((item) => (
               <motion.div
@@ -279,15 +269,7 @@ export default function Home() {
                 variants={fadeUp}
                 className="glass-card rounded-2xl p-6 hover:scale-[1.02] transition-transform duration-300"
               >
-                <div
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
-                    item.accent === "violet"
-                      ? "bg-violet-500/10"
-                      : item.accent === "cyan"
-                      ? "bg-cyan-500/10"
-                      : "bg-pink-500/10"
-                  }`}
-                >
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-violet-500/10">
                   {item.icon}
                 </div>
                 <h3 className="text-lg font-semibold text-slate-100 mb-2">{item.title}</h3>
@@ -304,7 +286,7 @@ export default function Home() {
           <Reveal>
             <SectionHeading
               eyebrow="Welcome"
-              eyebrowClassName="text-pink-400"
+              eyebrowClassName="text-violet-400"
               title="이런 분들 환영해요 👋"
               description="AI에 관심 있다면 실력 수준 상관없이 누구나 환영합니다"
             />
@@ -331,7 +313,7 @@ export default function Home() {
           <Reveal>
             <SectionHeading
               eyebrow="Topics"
-              eyebrowClassName="text-fuchsia-400"
+              eyebrowClassName="text-violet-400"
               title="이런 얘기 나눠요 💡"
               description="수준 상관없이, 본인이 흥미로웠던 거면 뭐든 OK 👍"
             />
@@ -341,7 +323,7 @@ export default function Home() {
                 <motion.div
                   key={topic.label}
                   variants={fadeUp}
-                  className="glass-card rounded-2xl p-4 text-center hover:scale-105 hover:border-cyan-500/30 transition-all duration-300 cursor-default group"
+                  className="glass-card rounded-2xl p-4 text-center hover:scale-105 hover:border-violet-500/30 transition-all duration-300 cursor-default group"
                 >
                   <div className="text-3xl mb-3">{topic.icon}</div>
                   <p className="text-slate-300 text-sm font-medium group-hover:text-white transition-colors">
@@ -360,7 +342,7 @@ export default function Home() {
           <Reveal>
             <SectionHeading
               eyebrow="Rule"
-              eyebrowClassName="text-pink-400"
+              eyebrowClassName="text-violet-400"
               title="모임 회칙 (딱 하나만요!)"
               className="mb-12"
             />
@@ -398,7 +380,7 @@ export default function Home() {
           <Reveal>
             <SectionHeading
               eyebrow="Membership Fee"
-              eyebrowClassName="text-cyan-400"
+              eyebrowClassName="text-violet-400"
               title="회비 안내"
               className="mb-12"
             />
@@ -407,7 +389,7 @@ export default function Home() {
               variants={fadeUp}
               className="relative glass-card rounded-3xl p-8 sm:p-10 text-center overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-600/5 to-violet-600/5" />
+              <div className="absolute inset-0 bg-gradient-to-br from-violet-600/5 to-pink-600/5" />
               <div className="relative">
                 <div className="text-5xl mb-6">💰</div>
                 <p className="text-5xl sm:text-6xl font-bold gradient-text mb-3">
@@ -416,8 +398,8 @@ export default function Home() {
                 <p className="text-slate-400 text-base mb-6">
                   매월 <span className="text-slate-200 font-semibold">5일</span>에 납부해주세요
                 </p>
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20">
-                  <span className="text-cyan-300 text-sm font-medium">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20">
+                  <span className="text-violet-200 text-sm font-medium">
                     커피 한 잔보다 저렴하게, 함께하는 가치는 그 이상 ✨
                   </span>
                 </div>
@@ -475,8 +457,8 @@ export default function Home() {
           <Reveal>
             <motion.div variants={fadeUp}>
               <div className="inline-flex items-center gap-2 mb-6">
-                <Zap size={20} className="text-pink-400" />
-                <span className="text-pink-400 font-medium text-sm uppercase tracking-widest">
+                <Zap size={20} className="text-violet-400" />
+                <span className="text-violet-400 font-medium text-sm uppercase tracking-widest">
                   Join Us
                 </span>
               </div>

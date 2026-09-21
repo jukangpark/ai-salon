@@ -8,7 +8,7 @@ export default function PageShell({
   grid,
   children,
 }: {
-  orbs: string[];
+  orbs?: string[];
   grid?: boolean;
   children: React.ReactNode;
 }) {

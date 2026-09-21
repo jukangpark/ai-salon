@@ -1,5 +1,11 @@
+// 전 페이지 공통 배경 orb — 페이지마다 색을 달리하지 않는다 (브랜드 violet + 의미색 cyan).
+const DEFAULT_ORBS = [
+  "top-[-10%] left-[-5%] w-[500px] h-[500px] bg-violet-600/10 blur-[120px]",
+  "bottom-[20%] right-[-10%] w-[400px] h-[400px] bg-cyan-500/8 blur-[120px]",
+];
+
 // 페이지 뒤의 흐릿한 원 + 노이즈 (+ 선택적으로 격자). orbs 는 원마다 위치·크기·색·blur 클래스.
-export default function PageBackground({ orbs, grid = false }: { orbs: string[]; grid?: boolean }) {
+export default function PageBackground({ orbs = DEFAULT_ORBS, grid = false }: { orbs?: string[]; grid?: boolean }) {
   return (
     <>
       <div className="fixed inset-0 pointer-events-none">

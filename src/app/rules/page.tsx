@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import PageShell from "@/components/PageShell";
 import PageHeader from "@/components/PageHeader";
 import { fadeUp, stagger } from "@/lib/motion";
-import { accentClasses, type Accent } from "@/lib/accents";
+import { accent } from "@/lib/accents";
 
 type Paragraph = {
   text: string;
@@ -22,7 +22,6 @@ type Article = {
 type Chapter = {
   num: string;
   title: string;
-  accent: Accent;
   articles: Article[];
 };
 
@@ -30,7 +29,6 @@ const chapters: Chapter[] = [
   {
     num: "제1장",
     title: "총칙",
-    accent: "violet",
     articles: [
       {
         num: "제1조",
@@ -76,7 +74,6 @@ const chapters: Chapter[] = [
   {
     num: "제2장",
     title: "회원",
-    accent: "pink",
     articles: [
       {
         num: "제5조",
@@ -171,7 +168,6 @@ const chapters: Chapter[] = [
   {
     num: "제3장",
     title: "회비",
-    accent: "cyan",
     articles: [
       {
         num: "제11조",
@@ -226,7 +222,6 @@ const chapters: Chapter[] = [
   {
     num: "제4장",
     title: "모임 운영",
-    accent: "fuchsia",
     articles: [
       {
         num: "제16조",
@@ -322,7 +317,6 @@ const chapters: Chapter[] = [
   {
     num: "제5장",
     title: "운영진",
-    accent: "amber",
     articles: [
       {
         num: "제21조",
@@ -351,7 +345,6 @@ const chapters: Chapter[] = [
   {
     num: "제6장",
     title: "행동 규범",
-    accent: "violet",
     articles: [
       {
         num: "제23조",
@@ -395,7 +388,6 @@ const chapters: Chapter[] = [
   {
     num: "제7장",
     title: "회칙 개정",
-    accent: "pink",
     articles: [
       {
         num: "제26조",
@@ -410,7 +402,6 @@ const chapters: Chapter[] = [
   {
     num: "제8장",
     title: "부칙",
-    accent: "cyan",
     articles: [
       {
         num: "제27조",
@@ -438,14 +429,7 @@ const circledNums = ["①", "②", "③", "④", "⑤", "⑥"];
 
 export default function RulesPage() {
   return (
-    <PageShell
-      grid
-      orbs={[
-        "top-[-10%] right-[-5%] w-[500px] h-[500px] bg-violet-600/10 blur-[120px]",
-        "bottom-[20%] left-[-10%] w-[400px] h-[400px] bg-pink-500/8 blur-[120px]",
-        "top-[50%] right-[20%] w-[300px] h-[300px] bg-cyan-500/6 blur-[100px]",
-      ]}
-    >
+    <PageShell grid>
       <PageHeader
         className="pb-16"
         badge={<>작성일: 2026-05-01 &nbsp;·&nbsp; 상태: 초안</>}
@@ -469,12 +453,11 @@ export default function RulesPage() {
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {chapters.map((ch) => {
-                const a = accentClasses[ch.accent];
                 return (
                   <a
                     key={ch.num}
                     href={`#${ch.num}`}
-                    className={`px-3 py-2 rounded-xl border text-xs font-medium transition-all hover:scale-105 ${a.badge} ${a.border}`}
+                    className={`px-3 py-2 rounded-xl border text-xs font-medium transition-all hover:scale-105 ${accent.badge} ${accent.border}`}
                   >
                     {ch.num} {ch.title}
                   </a>
@@ -489,7 +472,6 @@ export default function RulesPage() {
       <section className="relative px-6 pb-32">
         <div className="max-w-3xl mx-auto space-y-8">
           {chapters.map((chapter) => {
-            const a = accentClasses[chapter.accent];
             return (
               <motion.div
                 key={chapter.num}
@@ -502,9 +484,9 @@ export default function RulesPage() {
                 {/* Chapter header */}
                 <motion.div variants={fadeUp} className="flex items-center gap-3 mb-4">
                   <span
-                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold ${a.badge} ${a.border}`}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold ${accent.badge} ${accent.border}`}
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full ${a.dot}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full ${accent.dot}`} />
                     {chapter.num}
                   </span>
                   <h2 className="text-lg font-bold text-slate-100">{chapter.title}</h2>
@@ -516,10 +498,10 @@ export default function RulesPage() {
                     <motion.div
                       key={article.num}
                       variants={fadeUp}
-                      className={`glass-card rounded-2xl p-5 border overflow-hidden relative ${a.border}`}
+                      className={`glass-card rounded-2xl p-5 border overflow-hidden relative ${accent.border}`}
                     >
                       <div
-                        className={`absolute inset-0 bg-gradient-to-br ${a.glow} to-transparent pointer-events-none`}
+                        className={`absolute inset-0 bg-gradient-to-br ${accent.glow} to-transparent pointer-events-none`}
                       />
                       <div className="relative">
                         <p className="text-sm font-semibold text-slate-200 mb-3">

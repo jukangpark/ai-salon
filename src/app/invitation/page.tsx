@@ -10,13 +10,7 @@ import { INSTAGRAM_URL, KAKAO_OPEN_CHAT_URL } from "@/lib/constants";
 export default function InvitationPage() {
   return (
     <main className="relative min-h-screen overflow-hidden flex flex-col items-center justify-start px-4 py-12">
-      <PageBackground
-        orbs={[
-          "top-[-10%] left-[-10%] w-[400px] h-[400px] bg-violet-600/10 blur-[120px]",
-          "bottom-[10%] right-[-10%] w-[350px] h-[350px] bg-pink-500/10 blur-[120px]",
-          "top-[50%] left-[30%] w-[250px] h-[250px] bg-cyan-500/8 blur-[100px]",
-        ]}
-      />
+      <PageBackground />
 
       <motion.div
         initial="hidden"
@@ -26,8 +20,8 @@ export default function InvitationPage() {
       >
         {/* Header label */}
         <motion.div variants={fadeUp} className="flex justify-center">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card text-xs text-pink-300 font-medium">
-            <Sparkles size={12} className="text-pink-400" />
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card text-xs text-violet-200 font-medium">
+            <Sparkles size={12} className="text-violet-400" />
             당신을 초대합니다
           </span>
         </motion.div>
@@ -84,8 +78,8 @@ export default function InvitationPage() {
             </p>
           </div>
           <div className="glass-card rounded-2xl p-4 flex flex-col items-center gap-2 text-center">
-            <div className="w-9 h-9 rounded-xl bg-pink-500/10 flex items-center justify-center">
-              <MapPin size={16} className="text-pink-400" />
+            <div className="w-9 h-9 rounded-xl bg-violet-500/10 flex items-center justify-center">
+              <MapPin size={16} className="text-violet-400" />
             </div>
             <p className="text-slate-400 text-xs">지역</p>
             <p className="text-slate-200 text-sm font-semibold leading-tight">
@@ -121,7 +115,7 @@ export default function InvitationPage() {
         {/* Rules card */}
         <motion.div variants={fadeUp} className="glass-card rounded-2xl p-5">
           <div className="flex items-center gap-2 mb-3">
-            <Zap size={14} className="text-pink-400" />
+            <Zap size={14} className="text-violet-400" />
             <p className="text-slate-300 text-sm font-semibold">딱 하나만 지켜주세요</p>
           </div>
           <p className="text-slate-400 text-sm leading-relaxed">
@@ -167,7 +161,7 @@ export default function InvitationPage() {
             rel="noopener noreferrer"
             className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-semibold text-sm glass-card text-slate-300 hover:text-white transition-all duration-300"
           >
-            <Sparkles size={16} className="text-pink-400" />
+            <Sparkles size={16} className="text-violet-400" />
             인스타그램 DM 문의 @ai_salon_official
           </a>
           <a
