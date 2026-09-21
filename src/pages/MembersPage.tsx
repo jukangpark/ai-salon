@@ -6,7 +6,7 @@ import Notice from "@/components/Notice";
 import { ListSkeleton, StatCardsSkeleton } from "@/components/Skeletons";
 import StatCard from "@/components/StatCard";
 import { fetchJson, peekJson } from "@/lib/api";
-import { MEMBERS_API_URL, fmtAgo, fmtMoimDate, koreanAge, moimHref, parseNick, type Member } from "@/lib/members";
+import { MEMBERS_API_URL, fmtAgo, koreanAge, parseNick, type Member } from "@/lib/members";
 
 type SortKey = "chat" | "study";
 
@@ -117,13 +117,10 @@ export default function MembersPage() {
                     ].filter(Boolean) as string[];
                     return (
                       <div key={m.userId}>
-                        <div className="relative glass-card rounded-2xl border border-white/5 hover:border-violet-400/30 transition-colors px-4 sm:px-5 py-3.5 flex items-center gap-3">
-                          {/* 카드 전체가 프로필 링크 — 안쪽 「최근 벙」 칩은 달력으로 가야 해서 겹쳐 깐다 */}
-                          <Link
-                            to={`/members/${encodeURIComponent(m.userId)}`}
-                            aria-label={`${p.name} 프로필`}
-                            className="absolute inset-0 rounded-2xl"
-                          />
+                        <Link
+                          to={`/members/${encodeURIComponent(m.userId)}`}
+                          className="glass-card rounded-2xl border border-white/5 hover:border-violet-400/30 transition-colors px-4 sm:px-5 py-3.5 flex items-center gap-3"
+                        >
                           <span className="w-6 text-xs text-slate-500 tabular-nums">{i + 1}</span>
                           <span className="text-lg" title={`${m.tier} · Lv.${m.level}`}>
                             {m.tierEmoji}
@@ -143,37 +140,6 @@ export default function MembersPage() {
                                 </span>
                               ))}
                             </span>
-                            {m.recentMoims && m.recentMoims.length > 0 && (
-                              <span className="flex flex-wrap items-center gap-1 mt-1.5">
-                                <span className="text-[11px] text-slate-600">최근 벙</span>
-                                {m.recentMoims.map((mo) => {
-                                  const chip = (
-                                    <>
-                                      <span className="tabular-nums">{fmtMoimDate(mo.date)}</span> {mo.title}
-                                    </>
-                                  );
-                                  const title = [mo.date, mo.title, mo.location].filter(Boolean).join(" · ");
-                                  const href = moimHref(mo.date);
-                                  const cls =
-                                    "max-w-[11rem] truncate px-2 py-1 rounded-md bg-white/5 text-[11px] text-slate-400";
-                                  // 날짜를 아는 벙은 달력의 그 날로 보낸다.
-                                  return href ? (
-                                    <Link
-                                      key={mo.postId}
-                                      to={href}
-                                      title={`${title} · 달력에서 보기`}
-                                      className={`${cls} relative hover:bg-violet-500/15 hover:text-violet-200 transition-colors`}
-                                    >
-                                      {chip}
-                                    </Link>
-                                  ) : (
-                                    <span key={mo.postId} title={title} className={cls}>
-                                      {chip}
-                                    </span>
-                                  );
-                                })}
-                              </span>
-                            )}
                           </span>
                           {/* 이모지가 지표를 구분하므로 색은 쓰지 않고, 지금 정렬 중인 지표만 밝게 둔다. */}
                           <span className="shrink-0 flex flex-col items-end gap-0.5 text-xs tabular-nums text-slate-400">
@@ -189,7 +155,7 @@ export default function MembersPage() {
                             {fmtAgo(m.lastSeenAt)}
                           </span>
                           <span className="text-slate-600">›</span>
-                        </div>
+                        </Link>
                       </div>
                     );
                   })}
