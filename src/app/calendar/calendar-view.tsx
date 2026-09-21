@@ -7,10 +7,11 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Notice from "@/components/Notice";
 import StatCard from "@/components/StatCard";
 import { WEEKDAYS } from "@/lib/constants";
+import { MOIM_CALENDAR_API_URL, fetchJson, peekJson } from "@/lib/api";
 import { parseNick } from "@/lib/members";
 
 // no-more.app/calendar(강이봇 벙 달력)와 같은 구성. 데이터는 살롱봇 서버의 공개 읽기 전용 API.
-const CALENDAR_API_URL = "https://no-more.app/api/aisalon/moim/calendar";
+type CalendarRes = { ok: boolean; posts: Post[]; error?: string };
 
 type Person = { userId: string | null; name: string | null; present: boolean };
 
@@ -154,7 +155,10 @@ function EventCard({ p, now }: { p: Post; now: number }) {
 }
 
 export default function CalendarView() {
-  const [posts, setPosts] = useState<Post[] | null>(null);
+  const [posts, setPosts] = useState<Post[] | null>(() => {
+    const j = peekJson<CalendarRes>(MOIM_CALENDAR_API_URL);
+    return j?.ok ? j.posts : null;
+  });
   const [error, setError] = useState<string | null>(null);
   const [showCanceled, setShowCanceled] = useState(false);
   const params = useSearchParams();
@@ -171,8 +175,7 @@ export default function CalendarView() {
     router.replace(`${pathname}?${new URLSearchParams(d ? { m, d } : { m })}`, { scroll: false });
 
   useEffect(() => {
-    fetch(CALENDAR_API_URL)
-      .then((r) => r.json())
+    fetchJson<CalendarRes>(MOIM_CALENDAR_API_URL)
       .then((j) => (j.ok ? setPosts(j.posts) : setError(j.error ?? "불러오지 못했어요")))
       .catch(() => setError("서버에 연결하지 못했어요"));
   }, []);
@@ -248,14 +251,14 @@ export default function CalendarView() {
               type="checkbox"
               checked={showCanceled}
               onChange={(e) => setShowCanceled(e.target.checked)}
-              className="size-4 accent-orange-400"
+              className="size-4 accent-violet-400"
             />
             취소된 벙도 보기
           </label>
         </div>
 
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <StatCard label="이번 달 벙" value={`${summary.count}개`} tone="text-orange-300" valueClassName="text-lg" />
+          <StatCard label="이번 달 벙" value={`${summary.count}개`} tone="text-violet-300" valueClassName="text-lg" />
           <StatCard label="남은 벙" value={`${summary.upcoming}개`} valueClassName="text-lg" />
           <StatCard label="참석 연인원" value={`${summary.people}명`} valueClassName="text-lg" />
           <StatCard

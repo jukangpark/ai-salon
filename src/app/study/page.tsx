@@ -9,26 +9,20 @@ import Notice from "@/components/Notice";
 import StatCard from "@/components/StatCard";
 import { fadeUp, stagger } from "@/lib/motion";
 import { MEDALS, WEEKDAYS } from "@/lib/constants";
+import { STUDY_API_URL as API_URL, STUDY_CALENDAR_URL as CALENDAR_URL, STUDY_RANKING_URL as RANKING_URL, fetchJson, peekJson } from "@/lib/api";
 import { MEMBERS_API_URL, type Member } from "@/lib/members";
-
-// 살롱봇 서버(no-more-chatbot-server)의 공개 읽기 전용 API. 시각은 unix 초.
-const API_URL = "https://no-more.app/api/aisalon/study-cert";
-const CALENDAR_URL = `${API_URL}/calendar`;
-const RANKING_URL = `${API_URL}/ranking?limit=5`;
 
 type StudyRanking = { members: { name: string; count: number }[] };
 
 // 전체 기간 인증 횟수 TOP5. 불러오지 못하거나 비어 있으면 아무것도 그리지 않는다.
 function StudyRanking() {
-  const [members, setMembers] = useState<StudyRanking["members"] | null>(null);
+  const [members, setMembers] = useState<StudyRanking["members"] | null>(
+    () => peekJson<StudyRanking>(RANKING_URL)?.members ?? null,
+  );
 
   useEffect(() => {
-    fetch(RANKING_URL)
-      .then((res) => {
-        if (!res.ok) throw new Error(String(res.status));
-        return res.json();
-      })
-      .then((json: StudyRanking) => setMembers(json.members))
+    fetchJson<StudyRanking>(RANKING_URL)
+      .then((json) => setMembers(json.members))
       .catch(() => setMembers([]));
   }, []);
 
@@ -100,17 +94,13 @@ const heatClass = (count: number) => {
 function StudyHeatmap() {
   // null = 이번 달 (서버가 KST 기준으로 정한다)
   const [month, setMonth] = useState<string | null>(null);
-  const [cal, setCal] = useState<StudyCalendar | null>(null);
+  const [cal, setCal] = useState<StudyCalendar | null>(() => peekJson<StudyCalendar>(CALENDAR_URL) ?? null);
   const [selected, setSelected] = useState<string | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    fetch(month ? `${CALENDAR_URL}?month=${month}` : CALENDAR_URL)
-      .then((res) => {
-        if (!res.ok) throw new Error(String(res.status));
-        return res.json();
-      })
-      .then((json: StudyCalendar) => {
+    fetchJson<StudyCalendar>(month ? `${CALENDAR_URL}?month=${month}` : CALENDAR_URL)
+      .then((json) => {
         setCal(json);
         setError(false);
       })
@@ -263,31 +253,27 @@ const fmtRemaining = (secs: number) => {
 };
 
 export default function StudyPage() {
-  const [data, setData] = useState<StudyCert | null>(null);
-  const [remaining, setRemaining] = useState(0);
+  const [data, setData] = useState<StudyCert | null>(() => peekJson<StudyCert>(API_URL) ?? null);
+  const [remaining, setRemaining] = useState(() =>
+    data ? Math.max(0, data.periodEnd - Math.floor(Date.now() / 1000)) : 0,
+  );
   const [error, setError] = useState(false);
   // 스터디 인증 API엔 userId가 없어서 멤버 API의 닉네임으로 매칭한다. 못 찾으면 링크 없이 그린다.
-  const [userIds, setUserIds] = useState<Map<string, string>>(new Map());
+  const [userIds, setUserIds] = useState<Map<string, string>>(
+    () => new Map(peekJson<{ members: Member[] }>(MEMBERS_API_URL)?.members.map((m) => [m.name, m.userId])),
+  );
 
   useEffect(() => {
-    fetch(MEMBERS_API_URL)
-      .then((res) => {
-        if (!res.ok) throw new Error(String(res.status));
-        return res.json();
-      })
-      .then((json: { members: Member[] }) =>
+    fetchJson<{ members: Member[] }>(MEMBERS_API_URL)
+      .then((json) =>
         setUserIds(new Map(json.members.map((m) => [m.name, m.userId]))),
       )
       .catch(() => {});
   }, []);
 
   useEffect(() => {
-    fetch(API_URL)
-      .then((res) => {
-        if (!res.ok) throw new Error(String(res.status));
-        return res.json();
-      })
-      .then((json: StudyCert) => {
+    fetchJson<StudyCert>(API_URL)
+      .then((json) => {
         setData(json);
         // 기간 경계에서 음수가 되지 않게 0으로 막는다.
         setRemaining(Math.max(0, json.periodEnd - Math.floor(Date.now() / 1000)));
@@ -298,12 +284,7 @@ export default function StudyPage() {
   const achieved = data?.members.filter((m) => m.count >= data.required).length ?? 0;
 
   return (
-    <PageShell
-      orbs={[
-        "top-[-10%] right-[-5%] w-[500px] h-[500px] bg-emerald-600/10 blur-[120px]",
-        "bottom-[20%] left-[-10%] w-[400px] h-[400px] bg-cyan-500/8 blur-[120px]",
-      ]}
-    >
+    <PageShell>
       <PageHeader
         badge={<>📚 2주에 {data?.required ?? 3}회 이상 &nbsp;·&nbsp; 하루 1회 인정</>}
         title="스터디 인증"
