@@ -46,6 +46,17 @@ export const parseNick = (raw: string) => {
   return { name: m[1].trim(), age: m[2], region: m[3].trim(), gender: m[4] };
 };
 
+// 닉네임의 출생연도("96", "1996") → 한국식 세는나이. 2026년 기준 "96" → 31.
+export const koreanAge = (birth: string | null) => {
+  if (!birth) return null;
+  const n = Number(birth);
+  if (!Number.isInteger(n)) return null;
+  const year = Number(new Date().toLocaleDateString("en-US", { timeZone: "Asia/Seoul", year: "numeric" }));
+  // 두 자리면 세기를 보정한다. 올해 끝 두 자리보다 크면 1900년대.
+  const born = birth.length === 4 ? n : n + (n <= year % 100 ? 2000 : 1900);
+  return year - born + 1;
+};
+
 export const fmtAgo = (sec: number | null) => {
   if (!sec) return null;
   const diff = Math.max(0, Math.floor(Date.now() / 1000) - sec);
@@ -63,3 +74,6 @@ export const fmtDate = (sec: number | null) =>
         day: "numeric",
       })
     : null;
+
+// 벙 날짜 → 달력의 그 날(?m=·?d=). 날짜를 모르는 벙은 링크를 걸지 않는다.
+export const moimHref = (ymd: string | null) => (ymd ? `/calendar?m=${ymd.slice(0, 7)}&d=${ymd}` : null);

@@ -8,29 +8,27 @@ import PageHeader from "@/components/PageHeader";
 import Notice from "@/components/Notice";
 import StatCard from "@/components/StatCard";
 import { fadeUp, stagger } from "@/lib/motion";
-import { MEMBERS_API_URL, fmtAgo, fmtMoimDate, parseNick, type Member } from "@/lib/members";
+import { fetchJson, peekJson } from "@/lib/api";
+import { MEMBERS_API_URL, fmtAgo, fmtMoimDate, koreanAge, moimHref, parseNick, type Member } from "@/lib/members";
 
-type SortKey = "chat" | "study" | "recent";
+type SortKey = "chat" | "study";
 
 const SORTS: { key: SortKey; label: string }[] = [
   { key: "chat", label: "💬 채팅순" },
   { key: "study", label: "📚 스터디순" },
-  { key: "recent", label: "🕒 최근 활동순" },
 ];
 
 export default function MembersPage() {
-  const [members, setMembers] = useState<Member[] | null>(null);
+  const [members, setMembers] = useState<Member[] | null>(
+    () => peekJson<{ members: Member[] }>(MEMBERS_API_URL)?.members ?? null,
+  );
   const [error, setError] = useState(false);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("chat");
 
   useEffect(() => {
-    fetch(MEMBERS_API_URL)
-      .then((res) => {
-        if (!res.ok) throw new Error(String(res.status));
-        return res.json();
-      })
-      .then((json: { members: Member[] }) => setMembers(json.members))
+    fetchJson<{ members: Member[] }>(MEMBERS_API_URL)
+      .then((json) => setMembers(json.members))
       .catch(() => setError(true));
   }, []);
 
@@ -40,7 +38,7 @@ export default function MembersPage() {
     const searched = needle
       ? members.filter((m) => {
           const p = parseNick(m.name);
-          return [p.name, p.age, p.region, m.job, m.mbti, m.hobby, m.introduction].some((v) =>
+          return [p.name, p.age, String(koreanAge(p.age) ?? ""), p.region, m.job, m.mbti, m.hobby, m.introduction].some((v) =>
             v?.toLowerCase().includes(needle),
           );
         })
@@ -48,8 +46,6 @@ export default function MembersPage() {
     // 서버가 채팅순으로 주므로 나머지 정렬만 여기서 한다. 같으면 채팅순 유지.
     if (sort === "study")
       return [...searched].sort((a, b) => b.studyCertCount - a.studyCertCount || b.chatCount - a.chatCount);
-    if (sort === "recent")
-      return [...searched].sort((a, b) => (b.lastSeenAt ?? 0) - (a.lastSeenAt ?? 0));
     return searched;
   }, [members, query, sort]);
 
@@ -57,12 +53,7 @@ export default function MembersPage() {
   const totalStudy = members?.reduce((s, m) => s + m.studyCertCount, 0) ?? 0;
 
   return (
-    <PageShell
-      orbs={[
-        "top-[-10%] left-[-5%] w-[500px] h-[500px] bg-violet-600/10 blur-[120px]",
-        "bottom-[20%] right-[-10%] w-[400px] h-[400px] bg-cyan-500/8 blur-[120px]",
-      ]}
-    >
+    <PageShell>
       <PageHeader
         className="pb-10"
         badge={`👥 현재 방에 있는 멤버 ${members ? `${members.length}명` : ""}`}
@@ -116,17 +107,20 @@ export default function MembersPage() {
                   {list.map((m, i) => {
                     const p = parseNick(m.name);
                     const tags = [
-                      p.age ? `${p.age}년생` : null,
+                      p.age ? `${koreanAge(p.age)}살` : null,
                       p.region,
                       p.gender === "남" ? "남자" : p.gender === "여" ? "여자" : null,
                       m.mbti,
                     ].filter(Boolean) as string[];
                     return (
                       <motion.div key={m.userId} variants={fadeUp}>
-                        <Link
-                          href={`/members/${encodeURIComponent(m.userId)}`}
-                          className="glass-card rounded-2xl border border-white/5 hover:border-violet-400/30 transition-colors px-4 sm:px-5 py-3.5 flex items-center gap-3"
-                        >
+                        <div className="relative glass-card rounded-2xl border border-white/5 hover:border-violet-400/30 transition-colors px-4 sm:px-5 py-3.5 flex items-center gap-3">
+                          {/* 카드 전체가 프로필 링크 — 안쪽 「최근 벙」 칩은 달력으로 가야 해서 겹쳐 깐다 */}
+                          <Link
+                            href={`/members/${encodeURIComponent(m.userId)}`}
+                            aria-label={`${p.name} 프로필`}
+                            className="absolute inset-0 rounded-2xl"
+                          />
                           <span className="w-6 text-xs text-slate-500 tabular-nums">{i + 1}</span>
                           <span className="text-lg" title={`${m.tier} · Lv.${m.level}`}>
                             {m.tierEmoji}
@@ -149,28 +143,50 @@ export default function MembersPage() {
                             {m.recentMoims && m.recentMoims.length > 0 && (
                               <span className="flex flex-wrap items-center gap-1 mt-1.5">
                                 <span className="text-[10px] text-slate-600">최근 벙</span>
-                                {m.recentMoims.map((mo) => (
-                                  <span
-                                    key={mo.postId}
-                                    title={[mo.date, mo.title, mo.location].filter(Boolean).join(" · ")}
-                                    className="max-w-[11rem] truncate px-1.5 py-0.5 rounded-md border border-amber-500/15 bg-amber-500/5 text-[10px] text-amber-200/80"
-                                  >
-                                    <span className="tabular-nums">{fmtMoimDate(mo.date)}</span> {mo.title}
-                                  </span>
-                                ))}
+                                {m.recentMoims.map((mo) => {
+                                  const chip = (
+                                    <>
+                                      <span className="tabular-nums">{fmtMoimDate(mo.date)}</span> {mo.title}
+                                    </>
+                                  );
+                                  const title = [mo.date, mo.title, mo.location].filter(Boolean).join(" · ");
+                                  const href = moimHref(mo.date);
+                                  const cls =
+                                    "max-w-[11rem] truncate px-1.5 py-0.5 rounded-md bg-white/5 text-[10px] text-slate-400";
+                                  // 날짜를 아는 벙은 달력의 그 날로 보낸다.
+                                  return href ? (
+                                    <Link
+                                      key={mo.postId}
+                                      href={href}
+                                      title={`${title} · 달력에서 보기`}
+                                      className={`${cls} relative hover:bg-violet-500/15 hover:text-violet-200 transition-colors`}
+                                    >
+                                      {chip}
+                                    </Link>
+                                  ) : (
+                                    <span key={mo.postId} title={title} className={cls}>
+                                      {chip}
+                                    </span>
+                                  );
+                                })}
                               </span>
                             )}
                           </span>
-                          <span className="shrink-0 flex flex-col items-end gap-0.5 text-xs tabular-nums">
-                            <span className="text-cyan-300 font-semibold">💬 {m.chatCount.toLocaleString()}</span>
-                            <span className="text-emerald-300">📚 {m.studyCertCount}</span>
-                            <span className="text-amber-300" title="벙 참석">☕ {m.moimCount ?? 0}</span>
+                          {/* 이모지가 지표를 구분하므로 색은 쓰지 않고, 지금 정렬 중인 지표만 밝게 둔다. */}
+                          <span className="shrink-0 flex flex-col items-end gap-0.5 text-xs tabular-nums text-slate-400">
+                            <span className={sort === "chat" ? "text-slate-100 font-semibold" : undefined}>
+                              💬 {m.chatCount.toLocaleString()}
+                            </span>
+                            <span className={sort === "study" ? "text-slate-100 font-semibold" : undefined}>
+                              📚 {m.studyCertCount}
+                            </span>
+                            <span title="벙 참석">☕ {m.moimCount ?? 0}</span>
                           </span>
                           <span className="hidden sm:block w-16 text-right text-[11px] text-slate-500 shrink-0">
                             {fmtAgo(m.lastSeenAt)}
                           </span>
                           <span className="text-slate-600">›</span>
-                        </Link>
+                        </div>
                       </motion.div>
                     );
                   })}

@@ -9,7 +9,7 @@ import Notice from "@/components/Notice";
 import StatCard from "@/components/StatCard";
 import { fadeUp, stagger } from "@/lib/motion";
 import { WEEKDAYS } from "@/lib/constants";
-import { MEMBERS_API_URL, fmtAgo, fmtDate, parseNick, type MemberDetail } from "@/lib/members";
+import { MEMBERS_API_URL, fmtAgo, fmtDate, koreanAge, moimHref, parseNick, type MemberDetail } from "@/lib/members";
 
 const fmtCertDate = (ymd: string) => {
   const [, m, d] = ymd.split("-").map(Number);
@@ -40,7 +40,7 @@ export default function MemberDetailPage() {
   const p = member ? parseNick(member.name) : null;
   const tags = p
     ? ([
-        p.age ? `${p.age}년생` : null,
+        p.age ? `${koreanAge(p.age)}살` : null,
         p.region,
         p.gender === "남" ? "남자" : p.gender === "여" ? "여자" : null,
         member?.mbti,
@@ -57,12 +57,7 @@ export default function MemberDetailPage() {
     : [];
 
   return (
-    <PageShell
-      orbs={[
-        "top-[-10%] left-[-5%] w-[500px] h-[500px] bg-violet-600/10 blur-[120px]",
-        "bottom-[20%] right-[-10%] w-[400px] h-[400px] bg-cyan-500/8 blur-[120px]",
-      ]}
-    >
+    <PageShell>
       <section className="relative pt-28 pb-32 px-6">
         <div className="max-w-2xl mx-auto">
           <Link href="/members" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-white transition-colors mb-6">
@@ -101,7 +96,7 @@ export default function MemberDetailPage() {
 
               {/* Stats */}
               <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                <StatCard label="레벨" value={`Lv.${member.level}`} tone="text-violet-300" valueClassName="text-lg" />
+                <StatCard label="레벨" value={`Lv.${member.level}`} valueClassName="text-lg" />
                 <StatCard
                   label="채팅"
                   value={`${member.chatCount.toLocaleString()}회`}
@@ -117,7 +112,7 @@ export default function MemberDetailPage() {
                 <StatCard
                   label="벙 참석"
                   value={`${member.moimCount ?? 0}회`}
-                  tone="text-amber-300"
+                  tone="text-violet-300"
                   valueClassName="text-lg"
                 />
               </motion.div>
@@ -137,11 +132,6 @@ export default function MemberDetailPage() {
                 ) : (
                   <p className="text-xs text-slate-600">아직 등록된 프로필이 없어요.</p>
                 )}
-                {!member.job && !member.introduction && (
-                  <p className="text-[11px] text-slate-600 mt-3">
-                    카톡에서 <code className="px-1 py-0.5 rounded bg-white/5 text-slate-400 font-mono">/살롱봇 직업 …</code> 처럼 프로필을 등록할 수 있어요.
-                  </p>
-                )}
               </motion.div>
 
               {/* Moims */}
@@ -155,17 +145,37 @@ export default function MemberDetailPage() {
                     <p className="text-xs text-slate-600">아직 참석한 벙이 없어요.</p>
                   ) : (
                     <ul className="space-y-2">
-                      {member.moims.map((mo) => (
-                        <li key={mo.postId} className="flex items-baseline gap-3 text-sm">
-                          <span className="w-28 shrink-0 text-xs text-amber-200/80 tabular-nums">
-                            {mo.date ? fmtCertDate(mo.date) : "-"}
-                          </span>
-                          <span className="min-w-0 flex-1">
-                            <span className="block text-slate-200 break-words">{mo.title ?? "벙"}</span>
-                            {mo.location && <span className="block text-[11px] text-slate-500">📍 {mo.location}</span>}
-                          </span>
-                        </li>
-                      ))}
+                      {member.moims.map((mo) => {
+                        const href = moimHref(mo.date);
+                        const body = (
+                          <>
+                            <span className="w-28 shrink-0 text-xs text-slate-500 tabular-nums">
+                              {mo.date ? fmtCertDate(mo.date) : "-"}
+                            </span>
+                            <span className="min-w-0 flex-1">
+                              <span className="block text-slate-200 break-words">{mo.title ?? "벙"}</span>
+                              {mo.location && <span className="block text-[11px] text-slate-500">📍 {mo.location}</span>}
+                            </span>
+                          </>
+                        );
+                        // 날짜를 아는 벙은 달력의 그 날로 보낸다.
+                        return (
+                          <li key={mo.postId}>
+                            {href ? (
+                              <Link
+                                href={href}
+                                title="달력에서 이 날 보기"
+                                className="-mx-2 flex items-baseline gap-3 rounded-lg px-2 py-1 text-sm transition-colors hover:bg-white/5"
+                              >
+                                {body}
+                                <span className="shrink-0 self-center text-slate-600">›</span>
+                              </Link>
+                            ) : (
+                              <div className="flex items-baseline gap-3 text-sm">{body}</div>
+                            )}
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
                 </motion.div>
@@ -185,7 +195,7 @@ export default function MemberDetailPage() {
                       <span
                         key={d}
                         title={d}
-                        className="px-2.5 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-xs text-emerald-200 tabular-nums"
+                        className="px-2.5 py-1 rounded-full bg-white/5 text-xs text-slate-400 tabular-nums"
                       >
                         {fmtCertDate(d)}
                       </span>
