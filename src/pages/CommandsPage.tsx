@@ -155,7 +155,7 @@ const categories: Category[] = [
     emoji: "🌸",
     title: "메타",
     commands: [
-      { cmd: "명령어목록", desc: "전체 명령어 목록을 보여줘요." },
+      { cmd: "명령어목록", desc: "전체 명령어 목록 링크를 보내줘요. (또는 명령어, 명령어목록조회)" },
     ],
   },
 ];
