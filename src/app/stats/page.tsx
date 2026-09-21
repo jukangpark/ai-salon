@@ -7,13 +7,17 @@ import PageShell from "@/components/PageShell";
 import PageHeader from "@/components/PageHeader";
 import Notice from "@/components/Notice";
 import StatCard from "@/components/StatCard";
+import { Badge } from "@/components/ui/badge";
+import { Card as CardRoot, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fadeUp, stagger } from "@/lib/motion";
 import { MEDALS, WEEKDAYS } from "@/lib/constants";
-import { parseNick } from "@/lib/members";
+import { STATS_API_URL, fetchJson, peekJson } from "@/lib/api";
+import { MEMBERS_API_URL, fmtAgo, parseNick, type Member } from "@/lib/members";
 import { ColumnChart, DonutChart, HBarChart, TrendChart } from "./charts";
 
 // 살롱봇 서버(no-more-chatbot-server)의 공개 읽기 전용 API. 재실 멤버·봇 제외 기준, 시각은 unix 초.
-const STATS_API_URL = "https://no-more.app/api/aisalon/stats";
 
 type Stats = {
   generatedAt: number;
@@ -43,13 +47,13 @@ type Stats = {
   moim?: MoimStats; // 서버 배포 전 응답엔 없을 수 있다
 };
 
-// 정모(벙) — 벙별 인원·신규는 나간 분도 포함, TOP 은 재실 멤버만. date 는 KST YYYY-MM-DD.
+// 정모(벙) — 벙별 인원은 나간 분도 포함, TOP 은 재실 멤버만. date 는 KST YYYY-MM-DD.
 type MoimStats = {
   total: number;
   attendances: number;
   avgAttendees: number;
   participants: number;
-  list: { postId: string; date: string | null; title: string | null; location: string | null; count: number; newcomers: number }[];
+  list: { postId: string; date: string | null; title: string | null; location: string | null; count: number }[];
   top: { userId: string; name: string; count: number }[];
   locations: { location: string; count: number }[];
 };
@@ -78,6 +82,8 @@ const fmtDay = (d: string) => {
   return `${Number(m)}/${Number(day)}`;
 };
 const pct = (n: number, d: number) => (d ? Math.round((n / d) * 100) : 0);
+// KST 날짜(YYYY-MM-DD) 로부터 며칠 지났나
+const daysAgo = (ymd: string) => Math.floor((Date.now() - new Date(`${ymd}T00:00:00+09:00`).getTime()) / 86400000);
 const fmtMonth = (ym: string) => {
   const [y, m] = ym.split("-");
   return `${y.slice(2)}.${m}`;
@@ -115,31 +121,43 @@ const regionColor = (region: string) => {
 const fmtPeriod = (sec: number) =>
   new Date(sec * 1000).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul", month: "numeric", day: "numeric" });
 
+const MotionCard = motion.create(CardRoot);
+
+// 월 선택 탭 — 활성 달만 옅은 흰 배경.
+const MONTH_TAB =
+  "h-auto flex-none rounded-lg px-2.5 py-1 text-xs tabular-nums text-slate-500 hover:text-white data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-none dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-white/10";
+
 function Card({ title, sub, children }: { title: string; sub?: string; children: React.ReactNode }) {
   return (
-    <motion.div variants={fadeUp} className="glass-card rounded-2xl p-5 sm:p-6">
-      <div className="flex items-baseline justify-between mb-4 gap-3">
-        <p className="text-base font-semibold text-slate-100">{title}</p>
-        {sub && <p className="text-xs text-slate-500 text-right">{sub}</p>}
-      </div>
-      {children}
-    </motion.div>
+    <MotionCard variants={fadeUp} className="glass-card gap-4 rounded-2xl p-5 shadow-none sm:p-6">
+      <CardHeader className="flex items-baseline justify-between gap-3 px-0">
+        <CardTitle className="text-base text-slate-100">{title}</CardTitle>
+        {sub && <CardDescription className="text-xs text-slate-500 text-right">{sub}</CardDescription>}
+      </CardHeader>
+      <CardContent className="px-0">{children}</CardContent>
+    </MotionCard>
   );
 }
 
 export default function StatsPage() {
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [stats, setStats] = useState<Stats | null>(() => peekJson<Stats>(STATS_API_URL) ?? null);
+  const [members, setMembers] = useState<Member[] | null>(
+    () => peekJson<{ members: Member[] }>(MEMBERS_API_URL)?.members ?? null,
+  );
   const [error, setError] = useState(false);
   const [rankMonth, setRankMonth] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(STATS_API_URL)
-      .then((res) => {
-        if (!res.ok) throw new Error(String(res.status));
-        return res.json();
-      })
-      .then((json: Stats) => setStats(json))
+    fetchJson<Stats>(STATS_API_URL)
+      .then((json) => setStats(json))
       .catch(() => setError(true));
+  }, []);
+
+  // 벙 참석 현황은 멤버 API 에만 있어서(통계 API 는 TOP 만 준다) 따로 받아 온다.
+  useEffect(() => {
+    fetchJson<{ members: Member[] }>(MEMBERS_API_URL)
+      .then((json) => setMembers(json.members))
+      .catch(() => setMembers([]));
   }, []);
 
   const maxChat = stats ? Math.max(1, ...stats.chat.top.map((c) => c.count)) : 1;
@@ -150,14 +168,21 @@ export default function StatsPage() {
   const shownRankMonth = rankMonth ?? rankMonths[rankMonths.length - 1] ?? null;
   const moim = stats?.moim;
   const maxMoim = moim ? Math.max(1, ...moim.top.map((t) => t.count)) : 1;
+  // 날짜 없는 정모(날짜가 안 잡힌 공지글 등)가 섞여 들어오므로, 있는 날짜만으로 기간을 만든다.
+  const moimDates = (moim?.list ?? []).map((m) => m.date).filter((d): d is string => !!d).sort();
+  const moimRange = moimDates.length ? `${fmtDay(moimDates[0])} ~ ${fmtDay(moimDates[moimDates.length - 1])}` : null;
+  // 벙에 안 온 지 오래된 순 — 한 번도 안 온 분(합류 오래된 순)이 먼저, 그다음 마지막 참석이 오래된 순.
+  const absentees = (members ?? [])
+    .map((m) => ({ m, last: m.recentMoims?.[0]?.date ?? null }))
+    .sort((a, b) => {
+      if (!a.last !== !b.last) return a.last ? 1 : -1;
+      if (!a.last || !b.last) return (a.m.firstSeenAt ?? 0) - (b.m.firstSeenAt ?? 0);
+      return a.last.localeCompare(b.last);
+    });
+  const neverCount = absentees.filter((a) => !a.last).length;
 
   return (
-    <PageShell
-      orbs={[
-        "top-[-10%] left-[-5%] w-[500px] h-[500px] bg-amber-500/10 blur-[120px]",
-        "bottom-[20%] right-[-10%] w-[400px] h-[400px] bg-violet-600/10 blur-[120px]",
-      ]}
-    >
+    <PageShell>
       <PageHeader
         className="pb-10"
         badge={`📊 현재 방 기준 ${stats ? `${stats.members.total}명` : ""}`}
@@ -178,48 +203,35 @@ export default function StatsPage() {
                 <StatCard
                   label="성비 (남 : 여)"
                   value={`${stats.members.male} : ${stats.members.female}`}
-                  tone="text-pink-300"
                 />
-                <StatCard label="평균 나이" value={`${stats.members.avgAge}세`} tone="text-amber-300" />
+                <StatCard label="평균 나이" value={`${stats.members.avgAge}세`} />
                 <StatCard label="누적 채팅" value={`${stats.chat.total.toLocaleString()}회`} tone="text-cyan-300" />
               </motion.div>
 
               {/* 성비 */}
               <Card title="👫 성비" sub={`정규 닉 ${stats.members.parsed}명 기준`}>
-                <div className="h-3 rounded-full overflow-hidden flex bg-white/5">
-                  <div
-                    className="h-full bg-gradient-to-r from-cyan-400 to-sky-400"
-                    style={{ width: `${pct(stats.members.male, stats.members.parsed)}%` }}
-                  />
-                  <div
-                    className="h-full bg-gradient-to-r from-pink-400 to-rose-400"
-                    style={{ width: `${pct(stats.members.female, stats.members.parsed)}%` }}
-                  />
-                </div>
-                <div className="flex justify-between mt-2 text-xs text-slate-400">
-                  <span>
-                    남 {stats.members.male}명 ({pct(stats.members.male, stats.members.parsed)}%)
-                  </span>
-                  <span>
-                    여 {stats.members.female}명 ({pct(stats.members.female, stats.members.parsed)}%)
-                  </span>
-                </div>
+                <DonutChart
+                  data={[
+                    { key: "male", label: "남", value: stats.members.male, color: "var(--chart-male)" },
+                    { key: "female", label: "여", value: stats.members.female, color: "var(--chart-female)" },
+                  ]}
+                />
               </Card>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* 나이대 */}
                 <Card title="🎂 나이대" sub={`중앙값 ${stats.members.medianAge}세`}>
                   <HBarChart
-                    split
-                    data={stats.ages.map((a) => ({ label: a.bucket, 남: a.남, 여: a.여, total: a.남 + a.여 }))}
+                    name="인원"
+                    data={stats.ages.map((a) => ({ key: a.bucket, label: a.bucket, value: a.남 + a.여 }))}
                   />
                 </Card>
 
                 {/* 지역 */}
                 <Card title="📍 지역" sub="닉네임 기준">
                   <HBarChart
-                    split
-                    data={regions.slice(0, 8).map((r) => ({ label: r.region, 남: r.남, 여: r.여, total: r.total }))}
+                    name="인원"
+                    data={regions.slice(0, 8).map((r) => ({ key: r.region, label: r.region, value: r.total }))}
                   />
                 </Card>
               </div>
@@ -248,16 +260,13 @@ export default function StatsPage() {
               {moim && moim.total > 0 && (
                 <>
                   <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <StatCard label="정모 횟수" value={`${moim.total}회`} tone="text-amber-300" />
-                    <StatCard label="누적 참석" value={`${moim.attendances}명`} tone="text-amber-300" />
-                    <StatCard label="평균 참석" value={`${moim.avgAttendees}명`} tone="text-amber-300" />
-                    <StatCard label="한 번이라도 온 사람" value={`${moim.participants}명`} tone="text-amber-300" />
+                    <StatCard label="정모 횟수" value={`${moim.total}회`} tone="text-violet-300" />
+                    <StatCard label="누적 참석" value={`${moim.attendances}명`} tone="text-violet-300" />
+                    <StatCard label="평균 참석" value={`${moim.avgAttendees}명`} tone="text-violet-300" />
+                    <StatCard label="한 번이라도 온 사람" value={`${moim.participants}명`} tone="text-violet-300" />
                   </motion.div>
 
-                  <Card
-                    title="☕ 정모별 참석 인원"
-                    sub={`${fmtDay(moim.list[0].date ?? "")} ~ ${fmtDay(moim.list[moim.list.length - 1].date ?? "")} · 막대를 누르면 신규 인원`}
-                  >
+                  <Card title="☕ 정모별 참석 인원" sub={moimRange ?? undefined}>
                     <ColumnChart
                       name="참석"
                       unit="명"
@@ -265,7 +274,6 @@ export default function StatsPage() {
                         key: m.postId,
                         label: m.date ? fmtDay(m.date) : "?",
                         value: m.count,
-                        note: `신규 ${m.newcomers}명`,
                         tooltipLabel: [m.date, m.title].filter(Boolean).join(" "),
                       }))}
                     />
@@ -283,12 +291,11 @@ export default function StatsPage() {
                             >
                               {parseNick(t.name).name}
                             </Link>
-                            <div className="flex-1 h-2 rounded-full bg-white/5 overflow-hidden">
-                              <div
-                                className="h-full bg-gradient-to-r from-amber-400 to-orange-400"
-                                style={{ width: `${(t.count / maxMoim) * 100}%` }}
-                              />
-                            </div>
+                            <Progress
+                              value={(t.count / maxMoim) * 100}
+                              className="flex-1 bg-white/5"
+                              indicatorClassName="bg-gradient-to-r from-violet-500 to-violet-400"
+                            />
                             <span className="w-10 shrink-0 text-right text-xs text-slate-400 tabular-nums">{t.count}회</span>
                           </li>
                         ))}
@@ -311,7 +318,7 @@ export default function StatsPage() {
                     <ul className="space-y-2">
                       {[...moim.list].reverse().map((m) => (
                         <li key={m.postId} className="flex items-baseline gap-3 text-sm">
-                          <span className="w-12 shrink-0 text-xs text-amber-200/80 tabular-nums">
+                          <span className="w-12 shrink-0 text-xs text-violet-200/80 tabular-nums">
                             {m.date ? fmtDay(m.date) : "-"}
                           </span>
                           <span className="min-w-0 flex-1">
@@ -335,12 +342,12 @@ export default function StatsPage() {
                     <StatCard
                       label="최근 30일 말한 사람"
                       value={`${act.averages.speakers30}명 · 1인 ${act.averages.perSpeaker30}회`}
-                      tone="text-pink-300"
+                      tone="text-cyan-300"
                     />
                     <StatCard
                       label="가장 활발했던 날"
                       value={act.busiestDay ? `${fmtDay(act.busiestDay.day)} · ${act.busiestDay.count}회` : "-"}
-                      tone="text-amber-300"
+                      tone="text-cyan-300"
                     />
                   </motion.div>
 
@@ -415,42 +422,37 @@ export default function StatsPage() {
 
                     <Card title="🏆 월별 채팅 랭킹" sub="나간 분도 그 달 기록엔 남아요">
                       {shownRankMonth ? (
-                        <>
-                          <div className="flex flex-wrap gap-1 mb-3">
+                        <Tabs value={shownRankMonth} onValueChange={setRankMonth} className="gap-3">
+                          <TabsList className="h-auto flex-wrap justify-start gap-1 bg-transparent p-0 group-data-[orientation=horizontal]/tabs:h-auto">
                             {rankMonths.map((m) => (
-                              <button
-                                key={m}
-                                type="button"
-                                onClick={() => setRankMonth(m)}
-                                className={`px-2.5 py-1 rounded-lg text-xs font-medium tabular-nums transition-colors ${
-                                  m === shownRankMonth ? "bg-white/10 text-white" : "text-slate-500 hover:text-white"
-                                }`}
-                              >
+                              <TabsTrigger key={m} value={m} className={MONTH_TAB}>
                                 {fmtMonth(m)}
-                              </button>
+                              </TabsTrigger>
                             ))}
-                          </div>
-                          <ol className="space-y-1.5">
-                            {act.monthly.ranking[shownRankMonth].map((r, i) => (
-                              <li key={r.userId} className="flex items-center gap-3 text-sm">
-                                <span className="w-6 shrink-0 text-center text-xs text-slate-500">{MEDALS[i] ?? i + 1}</span>
-                                {r.present ? (
-                                  <Link
-                                    href={`/members/${r.userId}`}
-                                    className="flex-1 truncate text-slate-200 hover:text-violet-300 transition-colors"
-                                  >
-                                    {parseNick(r.name).name}
-                                  </Link>
-                                ) : (
-                                  <span className="flex-1 truncate text-slate-500">
-                                    {parseNick(r.name).name} <span className="text-[10px]">(나감)</span>
-                                  </span>
-                                )}
-                                <span className="text-xs text-slate-400 tabular-nums">{r.count.toLocaleString()}회</span>
-                              </li>
-                            ))}
-                          </ol>
-                        </>
+                          </TabsList>
+                          <TabsContent value={shownRankMonth}>
+                            <ol className="space-y-1.5">
+                              {act.monthly.ranking[shownRankMonth].map((r, i) => (
+                                <li key={r.userId} className="flex items-center gap-3 text-sm">
+                                  <span className="w-6 shrink-0 text-center text-xs text-slate-500">{MEDALS[i] ?? i + 1}</span>
+                                  {r.present ? (
+                                    <Link
+                                      href={`/members/${r.userId}`}
+                                      className="flex-1 truncate text-slate-200 hover:text-violet-300 transition-colors"
+                                    >
+                                      {parseNick(r.name).name}
+                                    </Link>
+                                  ) : (
+                                    <span className="flex-1 truncate text-slate-500">
+                                      {parseNick(r.name).name} <span className="text-[10px]">(나감)</span>
+                                    </span>
+                                  )}
+                                  <span className="text-xs text-slate-400 tabular-nums">{r.count.toLocaleString()}회</span>
+                                </li>
+                              ))}
+                            </ol>
+                          </TabsContent>
+                        </Tabs>
                       ) : (
                         <p className="text-sm text-slate-500">아직 집계된 달이 없어요.</p>
                       )}
@@ -474,12 +476,11 @@ export default function StatsPage() {
                           >
                             {p.name}
                           </Link>
-                          <div className="flex-1 h-2 rounded-full bg-white/5 overflow-hidden">
-                            <div
-                              className="h-full bg-gradient-to-r from-cyan-400 to-violet-400"
-                              style={{ width: `${(c.count / maxChat) * 100}%` }}
-                            />
-                          </div>
+                          <Progress
+                            value={(c.count / maxChat) * 100}
+                            className="flex-1 bg-white/5"
+                            indicatorClassName="bg-gradient-to-r from-cyan-400 to-violet-400"
+                          />
                           <span className="w-16 shrink-0 text-right text-xs text-slate-400 tabular-nums">
                             {c.count.toLocaleString()}회
                           </span>
@@ -513,12 +514,12 @@ export default function StatsPage() {
                       ["취미", stats.profile.hobby],
                     ] as const
                   ).map(([label, n]) => (
-                    <div key={label} className="rounded-xl bg-white/[0.03] border border-white/5 p-3">
-                      <p className="text-xs text-slate-500 mb-1">{label}</p>
-                      <p className="text-sm font-semibold text-slate-200 tabular-nums">
+                    <CardRoot key={label} className="gap-1 rounded-xl border-white/5 bg-white/[0.03] p-3 shadow-none">
+                      <CardDescription className="text-xs text-slate-500">{label}</CardDescription>
+                      <CardTitle className="text-sm text-slate-200 tabular-nums">
                         {n}명 <span className="text-xs text-slate-500 font-normal">({pct(n, stats.members.total)}%)</span>
-                      </p>
-                    </div>
+                      </CardTitle>
+                    </CardRoot>
                   ))}
                 </div>
                 <p className="mt-3 text-[11px] text-slate-600">
@@ -574,6 +575,39 @@ export default function StatsPage() {
                   에서 볼 수 있어요.
                 </p>
               </Card>
+
+              {/* 벙 미참석 */}
+              {absentees.length > 0 && (
+                <Card
+                  title="🪑 벙에 오래 안 온 멤버"
+                  sub={`한 번도 안 온 ${neverCount}명 먼저 · 마지막 참석 오래된 순`}
+                >
+                  <ol className="space-y-1.5">
+                    {absentees.map((a, i) => (
+                      <li key={a.m.userId} className="flex items-center gap-3 text-sm">
+                        <span className="w-6 shrink-0 text-center text-xs text-slate-500 tabular-nums">{i + 1}</span>
+                        <Link
+                          href={`/members/${a.m.userId}`}
+                          className="min-w-0 flex-1 truncate text-slate-200 hover:text-violet-300 transition-colors"
+                        >
+                          {parseNick(a.m.name).name}
+                          <span className="ml-2 text-[11px] text-slate-600">합류 {fmtAgo(a.m.firstSeenAt) ?? "-"}</span>
+                        </Link>
+                        {a.last ? (
+                          <span className="shrink-0 text-xs text-slate-400 tabular-nums">
+                            {fmtDay(a.last)} · {daysAgo(a.last)}일 전
+                            <span className="ml-1.5 text-[11px] text-slate-600">({a.m.moimCount ?? 0}회)</span>
+                          </span>
+                        ) : (
+                          <Badge className="rounded-md bg-rose-500/10 px-1.5 py-0.5 text-[11px] font-normal text-rose-300">
+                            참석 없음
+                          </Badge>
+                        )}
+                      </li>
+                    ))}
+                  </ol>
+                </Card>
+              )}
             </motion.div>
           )}
         </div>

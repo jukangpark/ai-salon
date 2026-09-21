@@ -4,8 +4,6 @@ import { useId } from "react";
 import { Area, AreaChart, Bar, BarChart, Cell, Label, LabelList, Pie, PieChart, XAxis, YAxis } from "recharts";
 import {
   ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
@@ -142,27 +140,16 @@ export function TrendChart({
   );
 }
 
-export type SplitRow = { label: string; 남: number; 여: number; total: number };
-
 const ROW_HEIGHT = 26;
 
-// 가로 막대. rows 가 SplitRow 면 남/여 누적, ChartRow 면 단일 값.
-// 합계는 오른쪽 축에 적는다 (막대 끝 라벨은 폭 0인 조각에서 안 그려져서 0명·여 0명 줄이 비었다).
-export function HBarChart(
-  props:
-    | { split: true; data: SplitRow[]; unit?: string }
-    | { split?: false; data: ChartRow[]; name: string; unit?: string },
-) {
-  const unit = props.unit ?? "명";
-  const totals = props.split ? props.data.map((d) => d.total) : props.data.map((d) => d.value);
-  const config: ChartConfig = props.split
-    ? { 남: { label: "남", color: "var(--chart-male)" }, 여: { label: "여", color: "var(--chart-female)" } }
-    : { value: { label: props.name, color: "var(--chart-1)" } };
-  const height = props.data.length * ROW_HEIGHT + (props.split ? 32 : 0);
+// 가로 막대. 값은 오른쪽 축에 적는다 (막대 끝 라벨은 폭 0인 막대에서 안 그려져서 0명 줄이 비었다).
+export function HBarChart({ data, name, unit = "명" }: { data: ChartRow[]; name: string; unit?: string }) {
+  const config = { value: { label: name, color: "var(--chart-1)" } } satisfies ChartConfig;
+  const height = data.length * ROW_HEIGHT;
 
   return (
     <ChartContainer config={config} className="aspect-auto w-full" style={{ height }}>
-      <BarChart data={props.data as object[]} layout="vertical" margin={{ top: 0, left: 0, right: 0, bottom: 0 }} barCategoryGap={6}>
+      <BarChart data={data} layout="vertical" margin={{ top: 0, left: 0, right: 0, bottom: 0 }} barCategoryGap={6}>
         <XAxis type="number" hide />
         <YAxis type="category" dataKey="label" width={80} tickLine={false} axisLine={false} fontSize={11} />
         <YAxis
@@ -175,18 +162,10 @@ export function HBarChart(
           axisLine={false}
           fontSize={11}
           tick={{ className: "fill-slate-300 tabular-nums" }}
-          tickFormatter={(_, i) => `${totals[i]}${unit}`}
+          tickFormatter={(_, i) => `${data[i]?.value}${unit}`}
         />
         <ChartTooltip cursor={false} content={<ChartTooltipContent formatter={tooltipRow(unit)} />} />
-        {props.split ? (
-          <>
-            <Bar dataKey="남" name="남" stackId="gender" fill="var(--color-남)" />
-            <Bar dataKey="여" name="여" stackId="gender" fill="var(--color-여)" radius={[0, 4, 4, 0]} />
-            <ChartLegend content={<ChartLegendContent />} />
-          </>
-        ) : (
-          <Bar dataKey="value" name={props.name} fill="var(--color-value)" radius={[0, 4, 4, 0]} />
-        )}
+        <Bar dataKey="value" name={name} fill="var(--color-value)" radius={[0, 4, 4, 0]} />
       </BarChart>
     </ChartContainer>
   );
