@@ -324,22 +324,6 @@ export default function StatsPage() {
                     </Card>
                   </div>
 
-                  <Card title="🗓️ 정모 기록" sub="최신순">
-                    <ul className="space-y-2">
-                      {[...moim.list].reverse().map((m) => (
-                        <li key={m.postId} className="flex items-baseline gap-3 text-sm">
-                          <span className="w-12 shrink-0 text-xs text-violet-200/80 tabular-nums">
-                            {m.date ? fmtDay(m.date) : "-"}
-                          </span>
-                          <span className="min-w-0 flex-1">
-                            <span className="block text-slate-200 break-words">{m.title ?? "정모"}</span>
-                            {m.location && <span className="block text-[11px] text-slate-500">📍 {m.location}</span>}
-                          </span>
-                          <span className="shrink-0 text-xs text-slate-400 tabular-nums">{m.count}명</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </Card>
                 </>
               )}
 
